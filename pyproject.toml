@@ -50,7 +50,7 @@ default-groups = ["dev", "docs"]
 cache-keys = [{ file = "pyproject.toml" }, { git = { commit = true, tags = true } }]
 
 [tool.uv.sources]
-project-standards = { git = "https://github.com/wghami/python-project-standards", rev = "3b04a6df799906e1951378af2efa23d715acd6fd" }
+project-standards = { git = "https://github.com/wghami/python-project-standards", rev = "7a02bd855f363bf8d9a088c306c439691dbc37a2" }
 
 [tool.hatch.version]
 source = "vcs"

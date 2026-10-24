@@ -28,6 +28,7 @@ Types and scopes are listed in `standards.toml` (`[commits]`). A scope is **requ
 |---|---|---|
 | BR-1 | Trunk-based: `main` is always releasable. Work happens on short-lived `<type>/<topic>` branches (e.g. `feat/rule-compiler`). | `branch-name` hook (`standards check-branch-name`), CI on the PR head |
 | BR-2 | `main` is protected: no direct push, PR required, required checks green, linear history, squash merge only, no bypass for admins. | GitHub ruleset |
+| BR-4 | A squash commit takes the PR title as its header and **the branch commits' messages as its body**, so footers (`BREAKING CHANGE:`, `Docs-Reviewed:`) survive the merge and still drive versioning and doc impact on `main`. | repository setting `squash_merge_commit_message = COMMIT_MESSAGES` |
 | BR-3 | A PR is up to date with `main` before merging. | ruleset "require branches to be up to date" |
 
 ## Versioning: Semantic Versioning 2.0.0, from tags
