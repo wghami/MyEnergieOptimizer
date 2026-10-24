@@ -1,0 +1,63 @@
+# Import contracts for myenergie (docs/standards/project/architecture.md).
+[importlinter]
+root_package = myenergie
+include_external_packages = True
+
+[importlinter:contract:layers]
+name = Layers depend downwards only (MEO-ARC-2)
+type = layers
+layers =
+    myenergie.bootstrap
+    myenergie.api | myenergie.adapters
+    myenergie.engine | myenergie.policies
+    myenergie.ports
+    myenergie.domain
+
+[importlinter:contract:pure-domain]
+name = The domain is pure (MEO-ARC-1)
+type = forbidden
+source_modules =
+    myenergie.domain
+    myenergie.ports
+forbidden_modules =
+    clingo
+    dishka
+    fastapi
+    httpx
+    pandas
+    pydantic
+    smartmdao
+    structlog
+
+[importlinter:contract:core-has-no-io]
+name = Engine and policies reach the outside only through ports (MEO-ARC-3)
+type = forbidden
+source_modules =
+    myenergie.engine
+    myenergie.policies
+forbidden_modules =
+    myenergie.adapters
+    myenergie.api
+    clingo
+    dishka
+    fastapi
+    httpx
+    pandas
+
+[importlinter:contract:edges-stay-apart]
+name = Adapters and the API never reach into the core (MEO-ARC-4)
+type = forbidden
+source_modules =
+    myenergie.adapters
+    myenergie.api
+forbidden_modules =
+    myenergie.engine
+    myenergie.policies
+
+[importlinter:contract:no-test-imports]
+name = Production code never imports test code (ARC-5)
+type = forbidden
+source_modules = myenergie
+forbidden_modules =
+    pytest
+    hypothesis

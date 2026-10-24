@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "smartmdao": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "--frozen", "smartmdao-mcp"]
+    }
+  }
+}

@@ -1,0 +1,71 @@
+# Slow gates (TST-11, TST-12). A scheduled failure opens a release-blocker issue (CI-7).
+name: Nightly
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  pull_request:
+    types: [labeled, synchronize]
+  workflow_dispatch:
+
+permissions: {}
+
+env:
+  UV_LOCKED: "1"
+
+jobs:
+  mutation:
+    name: mutation score ≥ 90 %
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'mutation')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      - run: uv sync
+      - run: uv run mutmut run --max-children 4 || true # the score below is the gate
+      - run: uv run mutmut export-cicd-stats
+      - run: uv run standards check-mutation-score mutants/mutmut-cicd-stats.json --min 90
+
+  perf:
+    name: performance budgets
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'perf')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      - run: uv sync
+      - name: Run perf-marked tests (none yet is a pass)
+        run: |
+          set +e
+          uv run pytest -m perf -p no:randomly --benchmark-only -o addopts="--disable-socket"
+          status=$?
+          if [ "${status}" = "5" ]; then exit 0; fi
+          exit "${status}"
+
+  report:
+    name: open a release blocker on failure
+    needs: [mutation, perf]
+    if: failure() && github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - run: |
+          title="Nightly gate failed"
+          existing=$(gh issue list --repo "${GITHUB_REPOSITORY}" --label release-blocker --state open --search "${title} in:title" --json number --jq '.[0].number')
+          body="Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          if [ -n "${existing}" ]; then
+            gh issue comment "${existing}" --repo "${GITHUB_REPOSITORY}" --body "${body}"
+          else
+            gh issue create --repo "${GITHUB_REPOSITORY}" --title "${title}" --label release-blocker --body "${body}"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}

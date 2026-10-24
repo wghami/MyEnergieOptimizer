@@ -1,0 +1,150 @@
+# Hooks are described in docs/standards/08-git-hooks.md; CI reruns every stage (HK-5).
+default_install_hook_types: [pre-commit, commit-msg, pre-push]
+default_stages: [pre-commit]
+minimum_pre_commit_version: "4.0.0"
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        args: [--maxkb=1024]
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+        args: [--unsafe] # mkdocs.yml uses !!python tags; parsing only, nothing is executed
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+
+  - repo: local
+    hooks:
+      # --- pre-commit stage: fast, staged files ------------------------------------------
+      - id: ruff-format
+        name: ruff format
+        entry: uv run --frozen ruff format
+        language: system
+        types_or: [python, pyi]
+      - id: ruff-check
+        name: ruff check
+        entry: uv run --frozen ruff check --fix --exit-non-zero-on-fix
+        language: system
+        types_or: [python, pyi]
+      - id: pyright
+        name: pyright (changed files)
+        entry: uv run --frozen pyright
+        language: system
+        types_or: [python, pyi]
+      - id: suppressions
+        name: no silent suppressions
+        entry: uv run --frozen standards check-suppressions
+        language: system
+        types_or: [python, pyi]
+      - id: uv-lock
+        name: uv.lock in sync
+        entry: uv lock --check
+        language: system
+        pass_filenames: false
+        files: ^(pyproject\.toml|uv\.lock)$
+      - id: actionlint
+        name: actionlint
+        entry: uv run --frozen actionlint
+        language: system
+        files: ^\.github/workflows/
+      - id: zizmor
+        name: zizmor (workflow security)
+        entry: uv run --frozen zizmor --offline --min-severity low
+        language: system
+        files: ^\.github/workflows/
+
+      # --- commit-msg stage --------------------------------------------------------------
+      - id: commit-msg
+        name: conventional commit message
+        entry: uv run --frozen standards check-commit-msg
+        language: system
+        stages: [commit-msg]
+
+      # --- pre-push stage: whole repository ----------------------------------------------
+      - id: branch-name
+        name: branch name
+        entry: uv run --frozen standards check-branch-name
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+      - id: pyright-all
+        name: pyright (whole repository)
+        entry: uv run --frozen pyright
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+      - id: import-contracts
+        name: import contracts
+        entry: uv run --frozen lint-imports
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+      - id: tests
+        name: tests (100 % line + branch coverage)
+        entry: uv run --frozen pytest -m "not perf" --cov --cov-report=term-missing:skip-covered --cov-report=xml
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+      - id: docstrings
+        name: docstring coverage 100 %
+        entry: uv run --frozen interrogate --fail-under 100 --quiet --ignore-private --ignore-semiprivate --ignore-magic --ignore-nested-functions src
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+      - id: bandit
+        name: bandit
+        entry: uv run --frozen bandit -c pyproject.toml -q -ll -r src scripts
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+      - id: docs-build
+        name: docs build (strict)
+        entry: uv run --frozen mkdocs build --strict --quiet
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+      - id: doc-impact
+        name: docs changed with what they describe
+        entry: uv run --frozen standards check-doc-impact
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+      - id: version-tag
+        name: version from tags, tags published
+        entry: uv run --frozen standards check-version --remote origin
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+      - id: standards-docs
+        name: standards consistent with tooling
+        entry: uv run --frozen standards check-standards
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+      - id: hook-parity
+        name: every hook stage runs in CI
+        entry: uv run --frozen standards check-hook-parity
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]

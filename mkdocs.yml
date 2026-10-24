@@ -1,0 +1,64 @@
+site_name: MyEnergieOptimizer
+site_description: Simulate a home or energy-community electricity system whose dispatch is decided by user-written logic rules, built on SmartMDAO.
+repo_url: https://github.com/wghami/MyEnergieOptimizer
+strict: true
+
+theme:
+  name: material
+  features: [navigation.sections, navigation.top, search.suggest, content.code.copy]
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle: { icon: material/brightness-7, name: Dark mode }
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle: { icon: material/brightness-4, name: Light mode }
+
+validation:
+  nav:
+    omitted_files: warn
+    not_found: warn
+    absolute_links: warn
+  links:
+    not_found: warn
+    anchors: warn
+    absolute_links: warn
+    unrecognized_links: warn
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_source: false
+            docstring_style: google
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc: { permalink: true }
+  - pymdownx.superfences
+
+nav:
+  - Home: index.md
+  - Reference: reference.md
+  - Standards:
+      - standards/README.md
+      - standards/01-repository-layout.md
+      - standards/02-commits-and-versioning.md
+      - standards/03-code-quality.md
+      - standards/04-architecture.md
+      - standards/05-testing.md
+      - standards/06-documentation.md
+      - standards/07-security.md
+      - standards/08-git-hooks.md
+      - standards/09-ci-cd.md
+      - standards/10-definition-of-done.md
+      - standards/11-keeping-standards-current.md
+      - Project-specific:
+          - standards/project/README.md
+          - standards/project/architecture.md
+          - standards/project/simulation.md
+          - standards/project/security.md

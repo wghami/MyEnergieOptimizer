@@ -1,0 +1,53 @@
+# Project configuration for the `standards` checks (docs/standards/README.md).
+
+[commits]
+types = ["feat", "fix", "perf", "refactor", "test", "docs", "build", "ci", "chore", "style", "revert"]
+scopes = ["domain", "engine", "policies", "rules", "adapters", "profiles", "tariffs", "forecast", "weather", "api", "di", "plugins", "docs", "standards", "ci", "deps", "release"]
+scope_required_for = ["feat", "fix", "perf", "refactor"]
+max_header_length = 72
+
+[branches]
+allowed = ["main"]
+extra_prefixes = ["dependabot/"]
+
+[doc_impact]
+# A change to a watched path must come with a change to the docs its rule names (DOC-6),
+# or carry a `Docs-Reviewed: <why>` footer. Watched paths without a rule fail the check.
+watched = [
+    "src/**",
+    "scripts/**",
+    "pyproject.toml",
+    "standards.toml",
+    ".importlinter",
+    ".pre-commit-config.yaml",
+    ".github/workflows/**",
+    "mkdocs.yml",
+]
+
+[[doc_impact.rules]]
+paths = ["src/**"]
+docs = ["docs/**", "README.md"]
+
+[[doc_impact.rules]]
+paths = ["scripts/**"]
+docs = ["docs/standards/**"]
+
+[[doc_impact.rules]]
+paths = ["pyproject.toml"]
+docs = ["docs/standards/03-code-quality.md", "docs/standards/05-testing.md", "planning/adr/**"]
+
+[[doc_impact.rules]]
+paths = ["standards.toml", ".pre-commit-config.yaml"]
+docs = ["docs/standards/**"]
+
+[[doc_impact.rules]]
+paths = [".importlinter"]
+docs = ["docs/standards/04-architecture.md", "docs/standards/project/**"]
+
+[[doc_impact.rules]]
+paths = [".github/workflows/**"]
+docs = ["docs/standards/09-ci-cd.md"]
+
+[[doc_impact.rules]]
+paths = ["mkdocs.yml"]
+docs = ["docs/standards/06-documentation.md", "docs/index.md"]
