@@ -4,7 +4,7 @@ Scope and design: [SPEC.md](SPEC.md). Each milestone has a file in `milestones/`
 
 | Milestone | Goal | Status |
 |---|---|---|
-| M0 | Repository, tooling and standards in place; first release tagged | in progress |
+| M0 | Repository, tooling and standards in place; first release tagged | done (v0.1.0) |
 | M1 | `TimeGrid`, `TimeSeries`, resampler; Enedis / CSV / synthetic profile sources; tariffs | planned |
 | M2 | Physics, baseline policy, simulator, KPIs; energy-balance property tests | planned |
 | M3 | Rules: vocabulary, `RuleSpec` → ASP compiler, sanitiser, `RulePolicy`, pre-run verifier | planned |
