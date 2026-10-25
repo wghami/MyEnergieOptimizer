@@ -920,7 +920,7 @@ dev = [
     { name = "mutmut", specifier = ">=3.8.0" },
     { name = "pip-audit", specifier = ">=2.10.1" },
     { name = "pre-commit", specifier = ">=4.7.0" },
-    { name = "project-standards", git = "https://github.com/wghami/python-project-standards?rev=4da8b7fc8fef006e0134584f8a4d0660ef206c07" },
+    { name = "project-standards", git = "https://github.com/wghami/python-project-standards?rev=93b1d857c92c9d4119e025efde80b1d260e42def" },
     { name = "pyright", extras = ["nodejs"], specifier = ">=1.1.414" },
     { name = "pytest", specifier = ">=9.1.1" },
     { name = "pytest-benchmark", specifier = ">=5.3.0" },
@@ -1089,8 +1089,8 @@ wheels = [
 
 [[package]]
 name = "project-standards"
-version = "0.3.1"
-source = { git = "https://github.com/wghami/python-project-standards?rev=4da8b7fc8fef006e0134584f8a4d0660ef206c07#4da8b7fc8fef006e0134584f8a4d0660ef206c07" }
+version = "0.3.2"
+source = { git = "https://github.com/wghami/python-project-standards?rev=93b1d857c92c9d4119e025efde80b1d260e42def#93b1d857c92c9d4119e025efde80b1d260e42def" }
 dependencies = [
     { name = "pyyaml" },
 ]

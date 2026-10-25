@@ -22,4 +22,4 @@ becomes an issue on the template repository; never weaken a rule locally instead
   project-owned, so the update cannot add the markers itself.
 - **Proposal:** the task should not fail the update. It should tell the user to add the markers,
   and the `readme` hook keeps enforcing DOC-10 on the next push.
-- **Status:** open
+- **Status:** filed https://github.com/wghami/python-project-standards/issues/7, resolved in v0.3.2
