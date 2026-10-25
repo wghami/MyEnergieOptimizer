@@ -9,6 +9,7 @@ from myenergy.adapters.packs.toml_files import TomlPackSource, builtin_packs
 from myenergy.adapters.rates.layered import LayeredRateSource
 from myenergy.domain.errors import UnknownPackError
 from myenergy.domain.packs import TariffPack
+from myenergy.domain.pricebooks import PriceBook
 from myenergy.domain.schedules import Schedule
 from myenergy.ports.packs import PackSource
 from myenergy.ports.rates import RateSource
@@ -42,6 +43,10 @@ class MemoryPacks:
         self._known(name)
         return {}
 
+    def price_book(self, name: str) -> PriceBook:
+        self._known(name)
+        return PriceBook(name=name)
+
 
 SOURCES: dict[str, Callable[[], PackSource]] = {
     "toml": lambda: TomlPackSource([builtin_packs(), FIXTURES]),
@@ -64,9 +69,10 @@ def test_catalog_is_sorted_and_each_pack_resolves(source: PackSource) -> None:
         assert all(
             isinstance(schedule, Schedule) for schedule in source.schedules(pack.name).values()
         )
+        assert source.price_book(pack.name).name == pack.name
 
 
 def test_unknown_packs_are_an_error(source: PackSource) -> None:
-    for call in (source.pack, source.rates, source.schedules):
+    for call in (source.pack, source.rates, source.schedules, source.price_book):
         with pytest.raises(UnknownPackError):
             call("no-such-pack")

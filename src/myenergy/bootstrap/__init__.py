@@ -2,7 +2,8 @@
 
 ``make_app_container()`` builds the APP-scoped container: settings, the configured profile
 sources, the ``ProfileResolver``, the ``PackSource`` (built-in and user tariff packs) and the
-``SiteResolver`` (with every installed asset kind). Tests pass their own ``Settings`` and plugin
+``SiteResolver`` (with every installed asset kind) and the ``PriceBookResolver`` (with every
+installed price basis). Tests pass their own ``Settings`` and plugin
 registries instead of patching anything (DI-3).
 """
 
@@ -19,11 +20,13 @@ from dishka import (
 from myenergy.adapters.packs.toml_files import TomlPackSource, builtin_packs
 from myenergy.bootstrap.registry import Registry, load_entry_points
 from myenergy.bootstrap.settings import Settings
+from myenergy.engine.pricing import PriceBookResolver
 from myenergy.engine.profiles import ProfileResolver
 from myenergy.engine.sites import SiteResolver
 from myenergy.ports.assets import ASSET_KINDS_GROUP, AssetKind
 from myenergy.ports.packs import PackSource
 from myenergy.ports.plugins import PROFILE_SOURCES_GROUP, ProfileSourcePlugin
+from myenergy.ports.pricing import PRICE_BASES_GROUP, PriceBasis
 from myenergy.ports.profiles import ProfileSource
 
 
@@ -37,8 +40,13 @@ def asset_kind_plugins() -> Registry[AssetKind]:
     return load_entry_points(ASSET_KINDS_GROUP, "asset kind", AssetKind)
 
 
+def price_basis_plugins() -> Registry[PriceBasis]:
+    """Every installed price basis (built-in or third-party)."""
+    return load_entry_points(PRICE_BASES_GROUP, "price basis", PriceBasis)
+
+
 class AppProvider(Provider):
-    """APP scope: settings, profile sources and resolver, tariff packs, site resolver."""
+    """APP scope: settings, profiles, tariff packs, sites and price books."""
 
     scope = Scope.APP
 
@@ -47,12 +55,14 @@ class AppProvider(Provider):
         settings: Settings,
         plugins: Registry[ProfileSourcePlugin],
         asset_kinds: Registry[AssetKind],
+        price_bases: Registry[PriceBasis],
     ) -> None:
         """Use these settings and these plugins."""
         super().__init__()
         self._settings = settings
         self._plugins = plugins
         self._asset_kinds = asset_kinds
+        self._price_bases = price_bases
 
     @provide
     def settings(self) -> Settings:
@@ -88,11 +98,17 @@ class AppProvider(Provider):
         """Sites resolved with every installed asset kind."""
         return SiteResolver(dict(self._asset_kinds), profiles, packs)
 
+    @provide
+    def price_book_resolver(self) -> PriceBookResolver:
+        """Price books resolved with every installed price basis."""
+        return PriceBookResolver(dict(self._price_bases))
+
 
 def make_app_container(
     settings: Settings | None = None,
     plugins: Registry[ProfileSourcePlugin] | None = None,
     asset_kinds: Registry[AssetKind] | None = None,
+    price_bases: Registry[PriceBasis] | None = None,
 ) -> Container:
     """The application container (call ``close()`` when done)."""
     return make_container(
@@ -100,5 +116,6 @@ def make_app_container(
             settings or Settings(),
             plugins or profile_source_plugins(),
             asset_kinds or asset_kind_plugins(),
+            price_bases or price_basis_plugins(),
         )
     )

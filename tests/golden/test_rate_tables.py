@@ -66,6 +66,9 @@ def test_collective_self_consumption_excise_is_zero_but_unverified() -> None:
     version = RATES.history(key).on(date(2025, 3, 1), allow_to_verify=True)
     assert version.value == 0
     assert version.status is RateStatus.TO_VERIFY
+    for day in (date(2024, 11, 18), date(2025, 2, 15)):
+        before = RATES.history(key).on(day, allow_to_verify=True).value
+        assert before == value(day, "excise", category="household", origin="grid")
 
 
 def test_turpe_is_official_and_continuous_from_2024_08_01() -> None:

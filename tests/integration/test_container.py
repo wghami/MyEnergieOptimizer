@@ -6,11 +6,17 @@ from decimal import Decimal
 from pathlib import Path
 
 from myenergy.adapters.sites.toml_files import load_sites, read_sites
-from myenergy.bootstrap import asset_kind_plugins, make_app_container, profile_source_plugins
+from myenergy.bootstrap import (
+    asset_kind_plugins,
+    make_app_container,
+    price_basis_plugins,
+    profile_source_plugins,
+)
 from myenergy.bootstrap.registry import Registry
 from myenergy.bootstrap.settings import Settings
 from myenergy.domain.flows import FlowKind
 from myenergy.domain.packs import tagged
+from myenergy.domain.pricebooks import PriceBook, PriceLine, RateRef
 from myenergy.domain.profiles import (
     Nominal,
     ProfileKind,
@@ -19,10 +25,11 @@ from myenergy.domain.profiles import (
     Shaped,
     TimestampLabel,
 )
-from myenergy.domain.rates import RateKey
+from myenergy.domain.rates import RateKey, RateUnit
 from myenergy.domain.series import Quantity, TimeSeries
 from myenergy.domain.sites import AssetRole, AssetSpec
 from myenergy.domain.time import TimeGrid
+from myenergy.engine.pricing import PriceBookResolver, PricingContext
 from myenergy.engine.profiles import ProfileResolver
 from myenergy.engine.sites import SiteResolver
 from myenergy.ports.assets import PowerProfiles
@@ -192,5 +199,55 @@ def test_a_new_asset_kind_joins_without_editing_code() -> None:
         site = load_sites(text, packs)["x"]
         flows = container.get(SiteResolver).flows(site, DAY)
         assert flows.totals()[FlowKind.IMPORT] == 24
+    finally:
+        container.close()
+
+
+class _Overrun:
+    """A test-only price basis (MEO-PLG-4)."""
+
+    name = "power_overrun"
+    units = frozenset({RateUnit.EUR_PER_KVA_YEAR})
+    needs_flow = False
+
+    def problems(self, line: PriceLine) -> list[str]:
+        del line  # takes anything
+        return []
+
+    def expansions(self, line: PriceLine) -> Mapping[str, tuple[str, ...]]:
+        del line  # no placeholder of its own
+        return {}
+
+    def depends_on(self, line: PriceLine, book: PriceBook) -> tuple[str, ...]:
+        del line, book  # independent of other lines
+        return ()
+
+
+def test_price_books_resolve_and_a_new_basis_joins_without_code() -> None:
+    bases = price_basis_plugins()
+    assert set(bases.names()) == {"fixed", "once", "per_kwh", "percent_of", "tiered_per_kwh"}
+    bases.register("power_overrun", _Overrun())
+    container = make_app_container(
+        settings(), profile_source_plugins(), asset_kind_plugins(), bases
+    )
+    try:
+        packs = container.get(PackSource)
+        pack = packs.pack("fr-household")
+        contract = pack.contract(subscribed_kva=6, fields={"fta": "LU", "supply_option": "base"})
+        overrun = PriceLine(
+            name="overrun",
+            basis="power_overrun",
+            rate=RateRef("turpe.withdrawal.power", (("segment", "{segment}"), ("fta", "{fta}"))),
+        )
+        book = PriceBook(name="b", lines=(*packs.price_book("fr-household").lines, overrun))
+        context = PricingContext(
+            contract=contract,
+            pack=pack,
+            rates=packs.rates("fr-household"),
+            start=date(2025, 8, 1),
+            end=date(2026, 8, 1),
+        )
+        resolved = container.get(PriceBookResolver).resolve(book, context)
+        assert resolved.line("overrun").rates[0].versions[0].value == Decimal("93.13")
     finally:
         container.close()

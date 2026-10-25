@@ -8,6 +8,7 @@ from collections.abc import Mapping, Sequence
 from typing import Protocol
 
 from myenergy.domain.packs import TariffPack
+from myenergy.domain.pricebooks import PriceBook
 from myenergy.domain.schedules import Schedule
 from myenergy.ports.rates import RateSource
 
@@ -37,6 +38,14 @@ class PackSource(Protocol):
 
     def schedules(self, name: str) -> Mapping[str, Schedule]:
         """The named schedules a pack ships (e.g. example offers), those it inherits included.
+
+        Raises:
+            UnknownPackError: no such pack.
+        """
+        ...
+
+    def price_book(self, name: str) -> PriceBook:
+        """The regulated price book of pack ``name``, merged with those it extends.
 
         Raises:
             UnknownPackError: no such pack.

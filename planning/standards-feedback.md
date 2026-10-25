@@ -111,7 +111,8 @@ becomes an issue on the template repository; never weaken a rule locally instead
   fails.
 - **Recurrence:** during M2 task 2b, `tests/unit/adapters/test_schedule_files.py` and
   `tests/security/test_schedule_files.py` collided. This time plain pytest failed at collection,
-  so the problem was caught, but only after the fact.
+  so the problem was caught, but only after the fact. It happened a third time in M2 task 4
+  (`tests/unit/engine/test_price_bases.py` and `tests/contract/test_price_bases.py`).
 - **Status:** open (the files were renamed here)
 
 ## 2026-10-25 — LAY-7: `copier update` leaves conflict markers in `uv.lock`

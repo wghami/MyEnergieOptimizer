@@ -31,6 +31,13 @@ synthetic = "myenergy.adapters.profiles.plugins:SYNTHETIC"
 consumer = "myenergy.engine.assets:CONSUMER"
 pv = "myenergy.engine.assets:PV"
 
+[project.entry-points."myenergy.price_bases"]
+fixed = "myenergy.engine.pricebases:FIXED"
+per_kwh = "myenergy.engine.pricebases:PER_KWH"
+tiered_per_kwh = "myenergy.engine.pricebases:TIERED"
+percent_of = "myenergy.engine.pricebases:PERCENT_OF"
+once = "myenergy.engine.pricebases:ONCE"
+
 [dependency-groups]
 dev = [
     "project-standards",

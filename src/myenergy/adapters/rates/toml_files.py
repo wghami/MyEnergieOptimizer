@@ -28,7 +28,7 @@ version of the same key starts, or stays open when it is the last. Anything malf
 
 import tomllib
 from collections import defaultdict
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from datetime import date
 from decimal import Decimal
 from importlib.resources.abc import Traversable
@@ -44,10 +44,14 @@ from myenergy.domain.rates import RateHistory, RateKey, RateStatus, RateUnit, Ra
 MAX_BYTES = 1024 * 1024
 """Rate files are small; larger inputs are refused (SEC-1)."""
 
-PublishedUnit = Literal["EUR/year", "EUR/kVA/year", "EUR/kWh", "cEUR/kWh", "EUR/MWh", "%"]
+PublishedUnit = Literal[
+    "EUR/year", "EUR/kVA/year", "EUR/month", "EUR", "EUR/kWh", "cEUR/kWh", "EUR/MWh", "%"
+]
 UNITS: dict[str, tuple[RateUnit, Decimal]] = {
     "EUR/year": (RateUnit.EUR_PER_YEAR, Decimal(1)),
     "EUR/kVA/year": (RateUnit.EUR_PER_KVA_YEAR, Decimal(1)),
+    "EUR/month": (RateUnit.EUR_PER_MONTH, Decimal(1)),
+    "EUR": (RateUnit.EUR, Decimal(1)),
     "EUR/kWh": (RateUnit.EUR_PER_KWH, Decimal(1)),
     "cEUR/kWh": (RateUnit.EUR_PER_KWH, Decimal("0.01")),
     "EUR/MWh": (RateUnit.EUR_PER_KWH, Decimal("0.001")),
@@ -62,7 +66,7 @@ class _Strict(BaseModel):
 
 class _Source(_Strict):
     title: str = Field(min_length=1)
-    url: str = Field(pattern=r"^https://")
+    url: str | None = Field(default=None, pattern=r"^https://")
 
 
 class _Version(_Strict):
@@ -103,10 +107,16 @@ type _Pending = tuple[str, _Version, Decimal, RateUnit, str]
 
 def _parse(name: str, text: str) -> _File:
     try:
-        return _File.model_validate(tomllib.loads(text, parse_float=Decimal))
+        document = tomllib.loads(text, parse_float=Decimal)
     except tomllib.TOMLDecodeError as error:
         msg = f"{name}: not valid TOML: {error}"
         raise DataFormatError(msg) from None
+    return _validate(name, document)
+
+
+def _validate(name: str, document: Mapping[str, object]) -> _File:
+    try:
+        return _File.model_validate(document)
     except ValidationError as error:
         msg = f"{name}: {error}"
         raise DataFormatError(msg) from None
@@ -127,7 +137,7 @@ def _pending(name: str, parsed: _File) -> Iterable[tuple[RateKey, _Pending]]:
             if source is None:
                 msg = f"{name}: {rate.component} cites an undeclared source {version.source!r}"
                 raise DataFormatError(msg)
-            cited = f"{source.title} <{source.url}>"
+            cited = source.title if source.url is None else f"{source.title} <{source.url}>"
             for selectors, value in _pairs(rate, version):
                 key = RateKey.of(rate.component, **selectors)
                 yield key, (name, version, value * factor, unit, cited)
@@ -173,17 +183,21 @@ class TomlRateSource:
 
     def __init__(
         self,
-        paths: Iterable[Traversable],
+        paths: Iterable[Traversable] = (),
         *,
+        documents: Iterable[tuple[str, Mapping[str, object]]] = (),
         name: str = "toml",
         max_bytes: int = MAX_BYTES,
     ) -> None:
-        """Read and check every file in ``paths``.
+        """Read and check every file in ``paths`` and every already-parsed document.
+
+        A document is ``(origin, table)``, the ``sources`` and ``rates`` tables of a TOML file
+        parsed with floats as ``Decimal`` (a price book carries its own rates this way).
 
         Raises:
             DataFormatError: a file is too large, malformed, or its versions overlap.
         """
-        pending: dict[RateKey, list[_Pending]] = defaultdict(list)
+        files: list[tuple[str, _File]] = []
         for path in sorted(paths, key=lambda path: path.name):
             raw = path.read_bytes()
             if len(raw) > max_bytes:
@@ -194,7 +208,11 @@ class TomlRateSource:
             except UnicodeDecodeError as error:
                 msg = f"{path.name}: not UTF-8: {error}"
                 raise DataFormatError(msg) from None
-            for key, item in _pending(path.name, _parse(path.name, text)):
+            files.append((path.name, _parse(path.name, text)))
+        files.extend((origin, _validate(origin, document)) for origin, document in documents)
+        pending: dict[RateKey, list[_Pending]] = defaultdict(list)
+        for origin, parsed in files:
+            for key, item in _pending(origin, parsed):
                 pending[key].append(item)
         if not pending:
             msg = "no rate file given"

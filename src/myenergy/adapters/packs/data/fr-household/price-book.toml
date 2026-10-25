@@ -1,0 +1,118 @@
+# Regulated lines of a French household bill: network tariff (TURPE), CTA, excise, VAT.
+# Suppliers that follow the regulated tariff bundle TURPE into their own subscription and kWh
+# prices, so network lines are "included" by default: shown as "of which", not added. A user's
+# book can set `inclusion = { network = "itemised" }` for an offer that bills TURPE separately.
+# Fixed charges are prorated by days / 365 (checked against a real bill; to verify for leap
+# years); each line is rounded to the cent and VAT is computed on the rounded lines.
+
+[book]
+name = "fr-household"
+inclusion = { network = "included" }
+settings = { proration_days = 365, rounding = 0.01, vat_on_rounded = true }
+
+# --- Network tariff (TURPE) ------------------------------------------------------------------
+
+[[lines]]
+name = "turpe.management"
+layer = "network"
+payee = "network operator"
+basis = "fixed"
+rate = { component = "turpe.management", selectors = { segment = "{segment}", status = "{status}", contract = "{contract}" } }
+vat = "subscription"
+
+[[lines]]
+name = "turpe.metering"
+layer = "network"
+payee = "network operator"
+basis = "fixed"
+rate = { component = "turpe.metering", selectors = { segment = "{segment}", meter = "{meter}" } }
+vat = "subscription"
+
+[[lines]]
+name = "turpe.power"
+layer = "network"
+payee = "network operator"
+basis = "fixed"
+rate = { component = "turpe.withdrawal.power", selectors = { segment = "{segment}", fta = "{fta}" } }
+vat = "subscription"
+
+[[lines]]
+name = "turpe.energy"
+layer = "network"
+payee = "network operator"
+basis = "per_kwh"
+flow = "import"
+schedule = "network"
+when = { fta = ["CU", "CU4", "MU4", "MUDT", "LU"] }
+rate = { component = "turpe.withdrawal.energy", selectors = { segment = "{segment}", fta = "{fta}", time_class = "{period}" } }
+vat = "consumption"
+
+# Collective self-consumption options price energy from the grid and from the operation apart.
+[[lines]]
+name = "turpe.energy.grid"
+layer = "network"
+payee = "network operator"
+basis = "per_kwh"
+flow = "supplied"
+schedule = "network"
+when = { fta = ["CU4-AC", "MU4-AC"] }
+rate = { component = "turpe.withdrawal.energy", selectors = { segment = "{segment}", fta = "{fta}", origin = "grid", time_class = "{period}" } }
+vat = "consumption"
+
+[[lines]]
+name = "turpe.energy.collective"
+layer = "network"
+payee = "network operator"
+basis = "per_kwh"
+flow = "shared_in"
+schedule = "network"
+when = { fta = ["CU4-AC", "MU4-AC"] }
+rate = { component = "turpe.withdrawal.energy", selectors = { segment = "{segment}", fta = "{fta}", origin = "collective", time_class = "{period}" } }
+vat = "consumption"
+
+# --- Taxes and contributions ------------------------------------------------------------------
+
+[[lines]]
+name = "cta"
+layer = "tax"
+payee = "CNIEG"
+basis = "percent_of"
+of = ["turpe.management", "turpe.metering", "turpe.power"]
+rate = { component = "cta", selectors = { network = "distribution" } }
+vat = "subscription"
+
+[[lines]]
+name = "excise"
+layer = "tax"
+payee = "State"
+basis = "per_kwh"
+flow = "supplied"
+rate = { component = "excise", selectors = { category = "household", origin = "grid" } }
+vat = "consumption"
+
+# Zero excise on energy from a collective operation (to verify: see the rate tables).
+[[lines]]
+name = "excise.collective"
+layer = "tax"
+payee = "State"
+basis = "per_kwh"
+flow = "shared_in"
+when = { status = ["collective"] }
+rate = { component = "excise", selectors = { category = "household", origin = "collective" } }
+vat = "consumption"
+
+[[lines]]
+name = "vat.subscription"
+layer = "tax"
+payee = "State"
+basis = "percent_of"
+of_vat = "subscription"
+rate = { component = "vat", selectors = { base = "subscription" } }
+
+[[lines]]
+name = "vat.consumption"
+layer = "tax"
+payee = "State"
+basis = "percent_of"
+of_vat = "consumption"
+rate = { component = "vat", selectors = { base = "consumption" } }

@@ -77,11 +77,24 @@ source = "energie-info"
 status = "official"
 value = 30.62
 
-# Energy shared in a collective self-consumption operation (renewable, plant below 1 MW).
+# Energy shared in a collective self-consumption operation (renewable, plant below 1 MW). Until
+# the exemption (2025-03-01, to verify) such energy paid the normal household rate.
 [[rates]]
 component = "excise"
 selectors = { category = "household", origin = "collective" }
 unit = "EUR/MWh"
+
+[[rates.versions]]
+from = 2024-08-01
+source = "collective-excise"
+status = "to-verify"
+value = 21.00
+
+[[rates.versions]]
+from = 2025-02-01
+source = "collective-excise"
+status = "to-verify"
+value = 33.70
 
 [[rates.versions]]
 from = 2025-03-01
