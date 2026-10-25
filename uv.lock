@@ -1309,7 +1309,7 @@ dev = [
     { name = "nbmake", specifier = ">=1.5.5" },
     { name = "pip-audit", specifier = ">=2.10.1" },
     { name = "pre-commit", specifier = ">=4.7.0" },
-    { name = "project-standards", git = "https://github.com/wghami/python-project-standards?rev=57f966adfb54987f4264d51c8824659939d7c28d" },
+    { name = "project-standards", git = "https://github.com/wghami/python-project-standards?rev=164479149d6600e747932831fcbc2b51f9b5e435" },
     { name = "pyarrow-stubs", specifier = ">=20.0.0.20260819" },
     { name = "pyright", extras = ["nodejs"], specifier = ">=1.1.414" },
     { name = "pytest", specifier = ">=9.1.1" },
@@ -1631,8 +1631,8 @@ wheels = [
 
 [[package]]
 name = "project-standards"
-version = "0.4.1"
-source = { git = "https://github.com/wghami/python-project-standards?rev=57f966adfb54987f4264d51c8824659939d7c28d#57f966adfb54987f4264d51c8824659939d7c28d" }
+version = "0.4.2"
+source = { git = "https://github.com/wghami/python-project-standards?rev=164479149d6600e747932831fcbc2b51f9b5e435#164479149d6600e747932831fcbc2b51f9b5e435" }
 dependencies = [
     { name = "pyyaml" },
 ]
