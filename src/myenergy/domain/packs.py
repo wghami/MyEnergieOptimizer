@@ -11,6 +11,7 @@ scenario or a tax study. Free **tags** (``country``, ``sector``, ``purpose``, â€
 import warnings
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from datetime import timedelta
 from decimal import Decimal
 from enum import StrEnum
 
@@ -178,6 +179,8 @@ class TariffPack:
     supply_field: str | None = None
     """The field that names the supply option."""
     supply_options: tuple[SupplyOption, ...] = ()
+    sharing_step: timedelta | None = None
+    """The step at which shared energy is allocated, if the pack says (e.g. 30 minutes)."""
 
     def __post_init__(self) -> None:
         """Check the pack's own consistency.

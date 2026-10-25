@@ -7,6 +7,7 @@
     title = "French households, with VAT at 5.5 % on everything"
     extends = "fr-household"          # optional: inherit everything not redefined here
     max_kva = 36                      # optional
+    sharing_step_minutes = 30         # optional: step of shared-energy allocation
     tags = { country = "FR", purpose = "research" }
 
     [fields.status]                   # contract fields: allowed values, optional default
@@ -31,13 +32,14 @@
     off_peak_hours = 8
 
 A pack that ``extends`` another inherits it: tags and fields merge by name; ``max_kva``,
-``network``, ``supply`` and ``checks`` are replaced when given (``checks = []`` drops them all);
-a rate key or a schedule redefined here hides the inherited one.
+``sharing_step_minutes``, ``network``, ``supply`` and ``checks`` are replaced when given
+(``checks = []`` drops them all); a rate key or a schedule redefined here hides the inherited one.
 """
 
 import tomllib
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, replace
+from datetime import timedelta
 from decimal import Decimal
 from importlib.resources import files
 from importlib.resources.abc import Traversable
@@ -78,6 +80,7 @@ class _Header(_Strict):
     title: str = Field(min_length=1)
     extends: str | None = None
     max_kva: Decimal | int | None = None
+    sharing_step_minutes: int | None = Field(default=None, gt=0, le=1440)
     tags: dict[str, str] = Field(default_factory=dict[str, str])
 
 
@@ -250,6 +253,7 @@ class TomlPackSource:
         tags: dict[str, str] = {}
         fields: dict[str, FieldSpec] = {}
         max_kva: Decimal | None = None
+        sharing: int | None = None
         network: OffPeakTemplate | Schedule | None = None
         supply: _Supply | None = None
         checks: list[_Check] = []
@@ -261,6 +265,7 @@ class TomlPackSource:
                 )
             if parsed.pack.max_kva is not None:
                 max_kva = Decimal(parsed.pack.max_kva)
+            sharing = parsed.pack.sharing_step_minutes or sharing
             if parsed.network is not None:
                 network = _network(parsed.network, schedules)
             supply = parsed.supply or supply
@@ -273,6 +278,7 @@ class TomlPackSource:
             extends=own.extends,
             fields=tuple(fields.values()),
             max_kva=max_kva,
+            sharing_step=None if sharing is None else timedelta(minutes=sharing),
             checks=tuple(
                 ContractCheck(
                     message=check.message,

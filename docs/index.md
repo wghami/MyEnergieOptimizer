@@ -15,4 +15,6 @@ Simulate a home or energy-community electricity system whose dispatch is decided
   season.
 - [Tariff packs](architecture/packs.md): user-definable frameworks (fields, checks, schedules,
   rates); the French household pack is one of them.
+- [Sites and energy flows](architecture/sites-and-flows.md): sites as data, asset kinds as
+  plugins, and the import, export, self-consumed and shared energy that bills charge.
 - [Wiring](architecture/wiring.md): settings, plugins and the dependency-injection container.

@@ -5,9 +5,11 @@ from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 
-from myenergy.bootstrap import make_app_container, profile_source_plugins
+from myenergy.adapters.sites.toml_files import load_sites, read_sites
+from myenergy.bootstrap import asset_kind_plugins, make_app_container, profile_source_plugins
 from myenergy.bootstrap.registry import Registry
 from myenergy.bootstrap.settings import Settings
+from myenergy.domain.flows import FlowKind
 from myenergy.domain.packs import tagged
 from myenergy.domain.profiles import (
     Nominal,
@@ -19,8 +21,11 @@ from myenergy.domain.profiles import (
 )
 from myenergy.domain.rates import RateKey
 from myenergy.domain.series import Quantity, TimeSeries
+from myenergy.domain.sites import AssetRole, AssetSpec
 from myenergy.domain.time import TimeGrid
 from myenergy.engine.profiles import ProfileResolver
+from myenergy.engine.sites import SiteResolver
+from myenergy.ports.assets import PowerProfiles
 from myenergy.ports.packs import PackSource
 from myenergy.ports.plugins import ProfileSourcePlugin
 from myenergy.ports.profiles import ProfileSource
@@ -139,5 +144,53 @@ def test_a_user_pack_joins_through_settings_without_code(tmp_path: Path) -> None
         assert [pack.name for pack in tagged(packs.catalog(), purpose="research")] == ["flat-vat"]
         vat = packs.rates("flat-vat").history(RateKey.of("vat", base="consumption"))
         assert vat.on(date(2026, 1, 1), allow_to_verify=True).value == 0
+    finally:
+        container.close()
+
+
+def test_sites_resolve_with_the_installed_asset_kinds() -> None:
+    container = make_app_container(settings())
+    try:
+        sites = read_sites(
+            Path(__file__).parents[1] / "fixtures" / "sites" / "street.toml",
+            container.get(PackSource),
+        )
+        june = TimeGrid(
+            start=datetime(2026, 6, 1, tzinfo=UTC),
+            end=datetime(2026, 6, 2, tzinfo=UTC),
+            step=timedelta(minutes=30),
+        )
+        flows = container.get(SiteResolver).flows(sites["sunny"], june)
+        assert flows.totals()[FlowKind.EXPORT] > 0
+        assert flows.totals()[FlowKind.SELF_CONSUMPTION] > 0
+    finally:
+        container.close()
+
+
+class _Heater:
+    """A test-only asset kind: a 1 kW heater, always on (MEO-PLG-4)."""
+
+    name = "heater"
+    role = AssetRole.SINK
+
+    def power(self, asset: AssetSpec, grid: TimeGrid, profiles: PowerProfiles) -> TimeSeries:
+        del asset, profiles  # always 1 kW
+        return TimeSeries.constant(grid, 1.0, Quantity.POWER_KW)
+
+
+def test_a_new_asset_kind_joins_without_editing_code() -> None:
+    kinds = asset_kind_plugins()
+    kinds.register("heater", _Heater())
+    container = make_app_container(settings(), profile_source_plugins(), kinds)
+    try:
+        packs = container.get(PackSource)
+        text = (
+            '[sites.x]\npack = "fr-household"\n[sites.x.contract]\nsubscribed_kva = 6\n'
+            'fields = { fta = "LU", supply_option = "base" }\n'
+            '[[sites.x.assets]]\nid = "h"\nkind = "heater"\n'
+        )
+        site = load_sites(text, packs)["x"]
+        flows = container.get(SiteResolver).flows(site, DAY)
+        assert flows.totals()[FlowKind.IMPORT] == 24
     finally:
         container.close()

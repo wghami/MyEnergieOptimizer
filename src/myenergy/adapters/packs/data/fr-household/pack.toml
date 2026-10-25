@@ -6,6 +6,9 @@
 name = "fr-household"
 title = "France, households on low voltage up to 36 kVA (TURPE, CTA, excise, VAT)"
 max_kva = 36
+# Collective self-consumption is allocated per 30-minute interval (to verify against Enedis's
+# technical reference documentation before relying on it).
+sharing_step_minutes = 30
 tags = { country = "FR", sector = "household", voltage = "BT<=36kVA", source = "official" }
 
 [fields.segment]
