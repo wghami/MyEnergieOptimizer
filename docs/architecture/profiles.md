@@ -35,7 +35,8 @@ Measured profiles (CSV in `kW`/`kWh`) have unit `kW` and take `AsMeasured()` or 
 `Nominal`, `PVSystem` or `Calibrated`. Any other pairing is refused.
 
 **Data quality is shown, not repaired.** The Enedis `PRD3_BASE` data has solar values around midnight
-on 2024-10-05 (a probable 12-hour shift at the resolution switch); see notebook 03 and
+on 2024-10-05 (a probable 12-hour shift at the resolution switch, present in Enedis's own
+published data); see notebook 03 and
 `tests/fixtures/enedis/README.md`.
 
 ## Scaling: one constant factor
