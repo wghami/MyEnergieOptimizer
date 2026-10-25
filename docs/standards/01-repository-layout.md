@@ -19,6 +19,7 @@
 ├── scripts/                  # level 2 of use: complete applications, each smoke-tested (DOC-13)
 ├── tests/                    # unit/ integration/ contract/ property/ golden/ api/ security/ perf/ arch/ scripts/
 ├── tools/                    # repository tooling used by hooks and CI (typed, tested)
+├── private/                  # personal or confidential inputs, git-ignored, never committed (SEC-14)
 ├── .github/                  # workflows, scripts/ for them, PR template, CODEOWNERS, dependabot.yml
 ├── standards.toml            # configuration of the `standards` checks
 ├── .copier-answers.yml       # which template release this project was rendered from
