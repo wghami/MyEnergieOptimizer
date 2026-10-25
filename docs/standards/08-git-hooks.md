@@ -22,6 +22,7 @@ uv run pre-commit install
 | `ruff-format`, `ruff-check` | Formatting and lint (LNT-1, LNT-2) |
 | `pyright` | Strict types on the changed files (TYP-1) |
 | `suppressions` | No coverage pragmas, no `nosec`, no reasonless `noqa` / ignores (COV-2, TYP-3, LNT-4) |
+| `notebook-structure`, `script-structure` | Notebooks and scripts follow their conventions (DOC-12, DOC-13) |
 | `uv-lock` | `uv.lock` matches `pyproject.toml` (LAY-7) |
 | `actionlint`, `zizmor` | Workflow correctness and security (SEC-11) |
 | `gitleaks`, `detect-private-key` | No secrets (SEC-7) |
@@ -41,6 +42,7 @@ uv run pre-commit install
 | `pyright-all` | Strict types everywhere (TYP-1) |
 | `import-contracts` | Architecture (ARC-1…6) |
 | `tests` | All suites except `perf`, 100 % line and branch coverage (COV-1) |
+| `notebooks` | Every notebook still runs in a fresh kernel (TST-14) |
 | `docstrings` | 100 % docstring coverage of the public API (DOC-1) |
 | `bandit` | Security lint at medium severity and above; low-severity patterns are already ruff `S` rules with reasoned `noqa` (SEC-4, SEC-9) |
 | `docs-build` | Strict docs build (DOC-4); never with `--quiet`, which hides the warnings `--strict` counts |

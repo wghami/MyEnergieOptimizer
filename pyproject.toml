@@ -26,8 +26,10 @@ dev = [
     "cyclonedx-bom>=7.5.0",
     "hypothesis>=6.170.9",
     "import-linter>=2.15",
+    "ipykernel>=7.4.0",
     "interrogate>=1.7.0",
     "mutmut>=3.8.0",
+    "nbmake>=1.5.5",
     "pip-audit>=2.10.1",
     "pre-commit>=4.7.0",
     "pyright[nodejs]>=1.1.414",
@@ -41,7 +43,7 @@ dev = [
     "syrupy>=6.1.1",
     "zizmor>=1.31.1",
 ]
-docs = ["mkdocs-material>=9.8.0", "mkdocstrings-python>=2.0.10"]
+docs = ["mkdocs-jupyter>=0.27.0", "mkdocs-material>=9.8.0", "mkdocstrings-python>=2.0.10"]
 
 [tool.uv]
 default-groups = ["dev", "docs"]
@@ -49,7 +51,7 @@ default-groups = ["dev", "docs"]
 cache-keys = [{ file = "pyproject.toml" }, { git = { commit = true, tags = true } }]
 
 [tool.uv.sources]
-project-standards = { git = "https://github.com/wghami/python-project-standards", rev = "ba25a3afdc448aacde1c2e8faaa452e809f03b47" }
+project-standards = { git = "https://github.com/wghami/python-project-standards", rev = "a68519109601eb55b2c625dd2b1ba7652b754381" }
 
 [tool.hatch.version]
 source = "vcs"
@@ -69,7 +71,7 @@ update_changelog_on_bump = false
 [tool.ruff]
 line-length = 100
 target-version = "py312"
-src = ["src", "tests", "scripts"]
+src = [".", "src"] # tools and scripts are first-party packages at the root
 
 [tool.ruff.lint]
 select = ["ALL"]
@@ -86,6 +88,14 @@ ignore = [
     "PLR2004", # literal expected values are the point of a test
     "D101", "D102", "D103", # test names state the behaviour; module docstring still required
     "INP001",  # pytest collects tests by path; test folders are not packages
+]
+"**/notebooks/**" = [
+    "D100",   # a notebook's first markdown cell is its docstring (DOC-12)
+    "T201",   # printing is how a notebook shows things
+    "E402",   # imports come where the concept needs them
+    "B018",   # a bare expression displays its value
+    "INP001", # notebooks are not packages
+    "S101",   # asserts state what the reader should see
 ]
 
 [tool.ruff.lint.mccabe]
@@ -109,13 +119,14 @@ ban-relative-imports = "all"
 [tool.pyright]
 typeCheckingMode = "strict"
 pythonVersion = "3.12"
-include = ["src", "tests", "scripts"]
+include = ["src", "tests", "tools", "scripts"]
 reportUnnecessaryTypeIgnoreComment = "error"
 
 # --- Tests & coverage (05-testing) --------------------------------------------------------
 [tool.pytest.ini_options]
 minversion = "8.0"
 testpaths = ["tests", "docs", "README.md"]
+pythonpath = ["."] # tests import tools.* and scripts.* (LAY-5, DOC-13)
 addopts = [
     "--strict-markers",
     "--strict-config",
@@ -131,7 +142,7 @@ filterwarnings = ["error"]
 [tool.coverage.run]
 branch = true
 source_pkgs = ["myenergy"]
-source = ["scripts"]
+source = ["tools", "scripts"]
 
 [tool.coverage.report]
 fail_under = 100
@@ -142,7 +153,7 @@ exclude_also = ["if TYPE_CHECKING:", "@overload", "^\\s*\\.\\.\\.$", "assert_nev
 
 [tool.mutmut]
 source_paths = ["src/myenergy/"]
-also_copy = ["docs", "README.md", "mkdocs.yml", "scripts"]  # the tests read them too
+also_copy = ["docs", "README.md", "mkdocs.yml", "tools", "scripts", "notebooks"]  # the tests read them
 
 [tool.bandit]
 exclude_dirs = ["tests"]

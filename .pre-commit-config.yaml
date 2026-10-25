@@ -46,6 +46,18 @@ repos:
         entry: uv run --frozen standards check-suppressions
         language: system
         types_or: [python, pyi]
+      - id: notebook-structure
+        name: notebooks one concept each, committed executed
+        entry: uv run --frozen standards check-notebooks
+        language: system
+        pass_filenames: false
+        files: ^notebooks/
+      - id: script-structure
+        name: scripts share one shape, each smoke-tested
+        entry: uv run --frozen standards check-scripts
+        language: system
+        pass_filenames: false
+        files: ^(scripts|tests/scripts)/
       - id: uv-lock
         name: uv.lock in sync
         entry: uv lock --check
@@ -99,6 +111,13 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [pre-push]
+      - id: notebooks
+        name: notebooks still run (nbmake)
+        entry: bash -c 'compgen -G "notebooks/*.ipynb" > /dev/null || exit 0; uv run --frozen pytest --nbmake --nbmake-timeout=300 -o addopts= -p no:randomly -q notebooks'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
       - id: docstrings
         name: docstring coverage 100 %
         entry: uv run --frozen interrogate --fail-under 100 --quiet --ignore-private --ignore-semiprivate --ignore-magic --ignore-nested-functions src
@@ -108,7 +127,7 @@ repos:
         stages: [pre-push]
       - id: bandit
         name: bandit
-        entry: uv run --frozen bandit -c pyproject.toml -q -ll -r src scripts
+        entry: uv run --frozen bandit -c pyproject.toml -q -ll -r src tools scripts
         language: system
         pass_filenames: false
         always_run: true

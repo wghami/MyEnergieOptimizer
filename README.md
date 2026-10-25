@@ -23,7 +23,7 @@ CI, and the slow or external checks on a schedule. This table is generated from 
 workflow configuration, so it cannot drift from what actually runs.
 
 <!-- standards:gates:start -->
-**34 gates.** 22 run on your machine before code leaves it (`pre-commit` / `pre-push` hooks); CI reruns every one of them, and scheduled jobs add the slow and the external checks.
+**37 gates.** 25 run on your machine before code leaves it (`pre-commit` / `pre-push` hooks); CI reruns every one of them, and scheduled jobs add the slow and the external checks.
 
 | Gate | 💻 commit | 💻 push | ☁️ CI | 🌙 nightly | 📅 weekly |
 |---|:-:|:-:|:-:|:-:|:-:|
@@ -33,6 +33,8 @@ workflow configuration, so it cannot drift from what actually runs.
 | ruff check (`ruff-check`) | ✓ |  | ✓ |  |  |
 | pyright (changed files) (`pyright`) | ✓ |  | ✓ |  |  |
 | no silent suppressions (`suppressions`) | ✓ |  | ✓ |  |  |
+| notebooks one concept each, committed executed (`notebook-structure`) | ✓ |  | ✓ |  |  |
+| scripts share one shape, each smoke-tested (`script-structure`) | ✓ |  | ✓ |  |  |
 | uv.lock in sync (`uv-lock`) | ✓ |  | ✓ |  |  |
 | actionlint (`actionlint`) | ✓ |  | ✓ |  |  |
 | zizmor (workflow security) (`zizmor`) | ✓ |  | ✓ |  |  |
@@ -41,6 +43,7 @@ workflow configuration, so it cannot drift from what actually runs.
 | pyright (whole repository) (`pyright-all`) |  | ✓ | ✓ |  |  |
 | import contracts (`import-contracts`) |  | ✓ | ✓ |  |  |
 | tests (100 % line + branch coverage) (`tests`) |  | ✓ | ✓ |  |  |
+| notebooks still run (nbmake) (`notebooks`) |  | ✓ | ✓ |  |  |
 | docstring coverage 100 % (`docstrings`) |  | ✓ | ✓ |  |  |
 | bandit (`bandit`) |  | ✓ | ✓ |  |  |
 | docs build (strict) (`docs-build`) |  | ✓ | ✓ |  |  |

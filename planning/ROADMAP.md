@@ -2,6 +2,10 @@
 
 Scope and design: [SPEC.md](SPEC.md). Each milestone has a file in `milestones/`.
 
+Every milestone ships the **notebooks** for the concepts it introduces (one concept per notebook,
+DOC-12) and, where useful, **scripts** for specific or advanced uses (DOC-13). For M1, for example:
+`01-time-grid`, `02-time-series-and-resampling`, `03-load-and-pv-profiles`, `04-tariffs`.
+
 | Milestone | Goal | Status |
 |---|---|---|
 | M0 | Repository, tooling and standards in place; first release tagged | done (v0.1.0) |
