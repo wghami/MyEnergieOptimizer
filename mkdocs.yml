@@ -67,6 +67,7 @@ nav:
       - architecture/schedules.md
       - architecture/packs.md
       - architecture/sites-and-flows.md
+      - architecture/price-books.md
       - architecture/wiring.md
   - Reference: reference.md
   - Standards:

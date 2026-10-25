@@ -7,6 +7,7 @@ import pytest
 from myenergy.bootstrap.registry import Registry, RegistryError, load_entry_points
 from myenergy.ports.assets import ASSET_KINDS_GROUP, AssetKind
 from myenergy.ports.plugins import PROFILE_SOURCES_GROUP, ProfileSourcePlugin
+from myenergy.ports.pricing import PRICE_BASES_GROUP, PriceBasis
 
 
 def test_register_and_iterate() -> None:
@@ -29,6 +30,8 @@ def test_installed_built_ins_are_entry_points() -> None:
     assert set(registry.names()) >= {"enedis", "synthetic"}
     kinds = load_entry_points(ASSET_KINDS_GROUP, "asset kind", AssetKind)
     assert set(kinds.names()) >= {"consumer", "pv"}
+    bases = load_entry_points(PRICE_BASES_GROUP, "price basis", PriceBasis)
+    assert set(bases.names()) >= {"fixed", "per_kwh", "tiered_per_kwh", "percent_of", "once"}
 
 
 def test_entry_points_are_sorted_and_checked() -> None:

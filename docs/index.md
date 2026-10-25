@@ -17,4 +17,6 @@ Simulate a home or energy-community electricity system whose dispatch is decided
   rates); the French household pack is one of them.
 - [Sites and energy flows](architecture/sites-and-flows.md): sites as data, asset kinds as
   plugins, and the import, export, self-consumed and shared energy that bills charge.
+- [Price books](architecture/price-books.md): what a bill charges, as data: lines, bases,
+  bundled or itemised network charges, and resolution against a contract.
 - [Wiring](architecture/wiring.md): settings, plugins and the dependency-injection container.

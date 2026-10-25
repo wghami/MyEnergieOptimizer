@@ -12,6 +12,7 @@ my-packs/
 └── vat-study/
     ├── pack.toml        fields, checks, network schedule, supply options, tags, extends
     ├── rates/*.toml     dated rates (format: Rates page); may be empty or absent
+    ├── price-book.toml  optional regulated price lines (format: Price books page)
     └── schedules.toml   optional named schedules (format: Schedules page)
 ```
 
@@ -45,7 +46,8 @@ A pack with `extends = "fr-household"` inherits everything it does not redefine:
 - `max_kva`, `network`, `supply` and `checks` are replaced when given (`checks = []` drops them);
 - a **rate key** defined in its `rates/` hides the whole inherited history of that key;
   every other key is inherited (`LayeredRateSource`);
-- a schedule of the same name hides the inherited one.
+- a schedule of the same name hides the inherited one;
+- the price books merge by line name, with `remove` (as a user's book on a pack's).
 
 ## Where packs come from (`myenergy.ports.packs.PackSource`)
 

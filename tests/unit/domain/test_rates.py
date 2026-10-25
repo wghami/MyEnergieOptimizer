@@ -118,3 +118,23 @@ def test_histories_refuse_empty_mixed_or_overlapping_versions() -> None:
         )
     with pytest.raises(RateError, match="overlaps"):
         RateHistory(KEY, [version(date(2025, 2, 1), None), version(date(2025, 8, 1), None)])
+
+
+def test_between_returns_the_covering_versions_or_names_the_gap() -> None:
+    history = RateHistory(
+        KEY,
+        [
+            version(date(2025, 2, 1), date(2025, 8, 1), "0.03370"),
+            version(date(2025, 8, 1), date(2026, 2, 1), "0.02998"),
+            version(date(2026, 3, 1), None, "0.03", RateStatus.TO_VERIFY),
+        ],
+    )
+    found = history.between(date(2025, 3, 1), date(2025, 9, 1))
+    assert [v.valid_from for v in found] == [date(2025, 2, 1), date(2025, 8, 1)]
+    with pytest.raises(CoverageError, match="covers 2026-02-01"):
+        history.between(date(2025, 9, 1), date(2026, 4, 1))
+    with pytest.raises(UnverifiedRateError):
+        history.between(date(2026, 3, 1), date(2026, 4, 1))
+    assert len(history.between(date(2026, 3, 1), date(2027, 1, 1), allow_to_verify=True)) == 1
+    assert history.between(date(2025, 3, 1), date(2025, 3, 1)) == ()
+    assert RateStatus("user") is RateStatus.USER

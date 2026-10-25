@@ -19,8 +19,9 @@ a test-only source ─────┘                                           
 - A **`RateKey`** names what is priced: a component and its selectors, for example
   `turpe.withdrawal.energy[fta=CU4, segment=BT<=36kVA, time_class=HPH]`.
 - A **`RateVersion`** is one value over `[valid_from, valid_to)` (`None`: still valid), in a
-  canonical `RateUnit` (`EUR/year`, `EUR/kVA/year`, `EUR/kWh`, `fraction`), held as `Decimal` so
-  it reads exactly as published. It cites its **source** and has a **status**: `official` or
+  canonical `RateUnit` (`EUR/year`, `EUR/kVA/year`, `EUR/month`, `EUR`, `EUR/kWh`, `fraction`),
+  held as `Decimal` so it reads exactly as published. It cites its **source** and has a
+  **status**: `official`, `user` (a supplier's prices entered by a user; usable in bills) or
   `to-verify`.
 - A **`RateHistory`** holds the versions of one key: one unit, no overlap (gaps are allowed).
   `on(day)` returns the version valid that day, raises `CoverageError` when none is, and raises
@@ -58,8 +59,10 @@ The tables are checked twice by `tests/golden/test_rate_tables.py`: against refe
 again from the texts, and against the texts' own arithmetic (TURPE 6 fixed coefficients are
 multiples of 0.12 €; TURPE 7 rose by exactly 3.04 % on 2026-08-01).
 
-The only `to-verify` value today is the zero excise on energy shared in a collective
-self-consumption operation (from 2025-03-01).
+The only `to-verify` values today are the excise on energy shared in a collective
+self-consumption operation: zero from 2025-03-01, and the normal household rate before that.
+`RateHistory.between(start, end)` returns the versions covering a period, naming the first day
+without a rate. A source's `url` is optional (a user's own prices have none).
 
 ## Where rates come from
 

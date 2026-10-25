@@ -48,10 +48,11 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from myenergy.adapters.errors import DataFormatError
+from myenergy.adapters.pricebooks.toml_files import load_price_book
 from myenergy.adapters.rates.layered import LayeredRateSource
 from myenergy.adapters.rates.toml_files import TomlRateSource
 from myenergy.adapters.tariffs.schedules import load_schedules
-from myenergy.domain.errors import ContractError, ScheduleError, UnknownPackError
+from myenergy.domain.errors import ContractError, PriceBookError, ScheduleError, UnknownPackError
 from myenergy.domain.packs import (
     CheckLevel,
     ContractCheck,
@@ -61,10 +62,12 @@ from myenergy.domain.packs import (
     SupplyOption,
     TariffPack,
 )
+from myenergy.domain.pricebooks import PriceBook
 from myenergy.domain.schedules import Schedule, Season
 from myenergy.ports.rates import RateSource
 
 PACK_FILE = "pack.toml"
+PRICE_BOOK_FILE = "price-book.toml"
 SCHEDULES_FILE = "schedules.toml"
 RATES_FOLDER = "rates"
 MAX_BYTES = 256 * 1024
@@ -209,6 +212,7 @@ class TomlPackSource:
         self._packs: dict[str, TariffPack] = {}
         self._rates: dict[str, RateSource] = {}
         self._own: dict[str, RateSource | None] = {}
+        self._books: dict[str, PriceBook] = {}
         for name in self._folders:
             self._packs[name] = self._build(name, ())
 
@@ -354,6 +358,37 @@ class TomlPackSource:
         """
         self.pack(name)
         return dict(self._schedules[name])
+
+    def price_book(self, name: str) -> PriceBook:
+        """The price book of pack ``name`` on top of those of the packs it extends.
+
+        Raises:
+            UnknownPackError: no such pack.
+            DataFormatError: a malformed ``price-book.toml``, one that carries rates (pack rates
+                go in ``rates/``), or one that removes a line it does not inherit.
+        """
+        self.pack(name)
+        if name not in self._books:
+            book = PriceBook(name=name)
+            for ancestor in reversed(self._chain(name, ())):
+                path = self._folders[ancestor].path / PRICE_BOOK_FILE
+                if not path.is_file():
+                    continue
+                where = f"{self._folders[ancestor].path.name}/{PRICE_BOOK_FILE}"
+                loaded = load_price_book(_read_text(path, self._max_bytes), origin=where)
+                if loaded.rates is not None:
+                    msg = (
+                        f"{where}: a pack's price book takes no rates; put them in {RATES_FOLDER}/"
+                    )
+                    raise DataFormatError(msg)
+                settings = loaded.book.settings if loaded.settings_given else None
+                try:
+                    book = book.merged(loaded.book, settings=settings)
+                except PriceBookError as error:
+                    msg = f"{where}: {error}"
+                    raise DataFormatError(msg) from None
+            self._books[name] = replace(book, name=name)
+        return self._books[name]
 
 
 def builtin_packs() -> Traversable:

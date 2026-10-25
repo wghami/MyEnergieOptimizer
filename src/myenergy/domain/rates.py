@@ -22,6 +22,9 @@ class RateUnit(StrEnum):
     EUR_PER_YEAR = "EUR/year"
     EUR_PER_KVA_YEAR = "EUR/kVA/year"
     EUR_PER_KWH = "EUR/kWh"
+    EUR_PER_MONTH = "EUR/month"
+    EUR = "EUR"
+    """A one-off amount."""
     FRACTION = "fraction"
     """A share of another amount: 0.2193 for 21.93 %."""
 
@@ -33,6 +36,8 @@ class RateStatus(StrEnum):
     """Read in the regulator's, the operator's or the law's own publication."""
     TO_VERIFY = "to-verify"
     """From a secondary source or an agent; refused in bills unless explicitly allowed."""
+    USER = "user"
+    """Entered by the user (a supplier's prices from a bill or an offer); usable in bills."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -132,6 +137,25 @@ class RateHistory:
     def __iter__(self) -> Iterator[RateVersion]:
         """The versions, oldest first."""
         return iter(self.versions)
+
+    def between(
+        self, start: date, end: date, *, allow_to_verify: bool = False
+    ) -> tuple[RateVersion, ...]:
+        """The versions that cover ``[start, end)`` without a gap, oldest first.
+
+        Raises:
+            CoverageError: a day of ``[start, end)`` that no version covers (the first one).
+            UnverifiedRateError: a ``to-verify`` version in the period, unless allowed.
+        """
+        found: list[RateVersion] = []
+        day = start
+        while day < end:
+            version = self.on(day, allow_to_verify=allow_to_verify)
+            found.append(version)
+            if version.valid_to is None:
+                break
+            day = version.valid_to
+        return tuple(found)
 
     def on(self, day: date, *, allow_to_verify: bool = False) -> RateVersion:
         """The version valid on ``day``.

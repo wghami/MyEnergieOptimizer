@@ -53,6 +53,18 @@ class FlowError(DomainError):
     """Energy flows break an invariant: negative energy, or more shared than metered."""
 
 
+class PriceBookError(DomainError):
+    """A price book is malformed, or cannot be applied to a contract over a period.
+
+    ``problems`` lists every problem found, so all of them can be fixed at once.
+    """
+
+    def __init__(self, problems: list[str]) -> None:
+        """Report ``problems`` (one per line in the message)."""
+        super().__init__("\n".join(problems))
+        self.problems = tuple(problems)
+
+
 class UnknownPackError(DomainError):
     """No tariff pack has this name."""
 

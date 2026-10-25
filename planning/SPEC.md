@@ -100,7 +100,8 @@ power in **kW**, money in **EUR**. NewTypes or units keep these from being mixed
   holds the access contract, meter, supply option), the connection's off-peak hours (per season if
   they differ), and optional explicit network and supply schedules (ADR 0007). The pack checks the
   fields and builds the schedules.
-- **Price book**: components, each with a layer (supply, network, CTA, excise, VAT, levy), a payee,
+- **Price book** (ADR 0010; built: lines with basis plugins, rate templates, `itemised` /
+  `included`, pack book + user book). First sketch: components, each with a layer (supply, network, CTA, excise, VAT, levy), a payee,
   a basis (`per_kwh` flat / time-of-use / series, `per_period` fixed, `tiered_per_kwh` by
   accumulated consumption in a declared period, `percent_of` named lines), the flows it applies to,
   and values that may depend on the contract (`by_power_kva`) and on dates. Users write price books

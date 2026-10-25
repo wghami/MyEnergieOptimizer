@@ -1,0 +1,4 @@
+# The research pack keeps the French book but bills the network tariff separately.
+[book]
+name = "vat-study"
+inclusion = { network = "itemised" }

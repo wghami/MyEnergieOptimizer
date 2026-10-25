@@ -1,0 +1,103 @@
+# A made-up supplier offer (prices invented for tests and notebooks; not from any real bill).
+[book]
+name = "example-supplier"
+
+[[lines]]
+name = "supply.subscription"
+layer = "supply"
+payee = "supplier"
+basis = "fixed"
+rate = { component = "supply.subscription", selectors = { option = "{supply_option}", kva = "{subscribed_kva}" } }
+vat = "subscription"
+
+[[lines]]
+name = "supply.energy"
+layer = "supply"
+payee = "supplier"
+basis = "per_kwh"
+flow = "supplied"
+schedule = "supply"
+rate = { component = "supply.energy", selectors = { option = "{supply_option}", period = "{period}" } }
+vat = "consumption"
+
+[[lines]]
+name = "service.support"
+layer = "service"
+payee = "supplier"
+basis = "fixed"
+rate = { component = "service.support" }
+vat = "consumption"
+
+[[lines]]
+name = "feed-in"
+layer = "supply"
+payee = "grid buyer"
+basis = "per_kwh"
+flow = "sold"
+credit = true
+rate = { component = "feed-in" }
+
+[sources.offer]
+title = "Example supplier price list (invented)"
+
+[[rates]]
+component = "supply.subscription"
+selectors = { kva = "6" }
+unit = "EUR/month"
+by = "option"
+
+[[rates.versions]]
+from = 2024-08-01
+source = "offer"
+status = "user"
+value = { base = 12.00, hp-hc = 12.50 }
+
+[[rates.versions]]
+from = 2025-08-01
+source = "offer"
+status = "user"
+value = { base = 12.40, hp-hc = 12.90 }
+
+[[rates]]
+component = "supply.energy"
+selectors = { option = "hp-hc" }
+unit = "EUR/kWh"
+by = "period"
+
+[[rates.versions]]
+from = 2024-08-01
+source = "offer"
+status = "user"
+value = { HP = 0.2000, HC = 0.1500 }
+
+[[rates]]
+component = "supply.energy"
+selectors = { option = "base" }
+unit = "EUR/kWh"
+by = "period"
+
+[[rates.versions]]
+from = 2024-08-01
+source = "offer"
+status = "user"
+value = { base = 0.1800 }
+
+[[rates]]
+component = "service.support"
+unit = "EUR/month"
+
+[[rates.versions]]
+from = 2024-08-01
+source = "offer"
+status = "user"
+value = 3.00
+
+[[rates]]
+component = "feed-in"
+unit = "cEUR/kWh"
+
+[[rates.versions]]
+from = 2024-08-01
+source = "offer"
+status = "user"
+value = 4.0
