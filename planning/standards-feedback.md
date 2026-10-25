@@ -14,6 +14,14 @@ becomes an issue on the template repository; never weaken a rule locally instead
 
 -->
 
+## 2026-10-25 — COM-4: a breaking PR title can never pass `check-pr-title`
+
+- **Context:** the PR renaming the project, titled `build(release)!: …`.
+- **Problem:** the title was held to COM-2's footer rule, but a title has no body; the footer
+  reaches `main` through the squash body (BR-4) and is already checked on each commit.
+- **Proposal:** check PR titles as headers only.
+- **Status:** filed https://github.com/wghami/python-project-standards/issues/11, resolved in v0.3.4
+
 ## 2026-10-25 — DOC-4, TST-11, TST-12, CI-7: five gate holes found rolling out v0.3.1
 
 - **Context:** first main-branch run after updating to v0.3.2; the docs job, the release job and

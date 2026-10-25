@@ -18,7 +18,7 @@ Types and scopes are listed in `standards.toml` (`[commits]`). A scope is **requ
 | COM-1 | Every commit follows the format above, with a listed type and scope. | `commit-msg` hook (`standards check-commit-msg`); CI `standards check-commits` on every PR commit |
 | COM-2 | A breaking change has `!` after the scope **and** a `BREAKING CHANGE:` footer. | `standards check-commit-msg` |
 | COM-3 | One logical change per commit. Formatting-only changes go in their own `style` commit. | review |
-| COM-4 | The PR title is a valid Conventional Commit, because it becomes the squash-merge message. | CI `standards check-pr-title` |
+| COM-4 | The PR title is a valid Conventional Commit header, because it becomes the squash-merge header. A breaking title needs no footer of its own: the commits carry it into the squash body (BR-4). | CI `standards check-pr-title` |
 | COM-5 | Commits never contain secrets, generated artifacts or large data. | `gitleaks`, `detect-private-key`, `check-added-large-files` |
 | COM-6 | `fixup!` / `squash!` commits are allowed locally, but never reach `main`. | CI `standards check-commits` |
 
