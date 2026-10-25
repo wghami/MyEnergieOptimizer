@@ -1,4 +1,4 @@
-# Security — MyEnergieOptimizer
+# Security — MyEnergyOptimizer
 
 The application accepts **user-written logic programs**, **uploaded files** and **arbitrarily
 large simulation requests**, and it calls **external weather APIs**. Each threat has a mitigation

@@ -3,7 +3,7 @@ requires = ["hatchling>=1.27", "hatch-vcs>=0.5"]
 build-backend = "hatchling.build"
 
 [project]
-name = "myenergieoptimizer"
+name = "myenergyoptimizer"
 dynamic = ["version"] # from git tags (VER-1)
 description = "Simulate a home or energy-community electricity system whose dispatch is decided by user-written logic rules, built on SmartMDAO."
 readme = "README.md"
@@ -14,8 +14,8 @@ requires-python = ">=3.12,<3.13"
 dependencies = []
 
 [project.urls]
-Repository = "https://github.com/wghami/MyEnergieOptimizer"
-Documentation = "https://wghami.github.io/MyEnergieOptimizer/"
+Repository = "https://github.com/wghami/MyEnergyOptimizer"
+Documentation = "https://wghami.github.io/MyEnergyOptimizer/"
 
 [dependency-groups]
 dev = [
@@ -55,7 +55,7 @@ project-standards = { git = "https://github.com/wghami/python-project-standards"
 source = "vcs"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/myenergie"]
+packages = ["src/myenergy"]
 
 # --- Versioning (02-commits-and-versioning) -------------------------------------------------
 [tool.commitizen]
@@ -130,7 +130,7 @@ filterwarnings = ["error"]
 
 [tool.coverage.run]
 branch = true
-source_pkgs = ["myenergie"]
+source_pkgs = ["myenergy"]
 source = ["scripts"]
 
 [tool.coverage.report]
@@ -141,7 +141,7 @@ skip_covered = true
 exclude_also = ["if TYPE_CHECKING:", "@overload", "^\\s*\\.\\.\\.$", "assert_never\\("]
 
 [tool.mutmut]
-source_paths = ["src/myenergie/"]
+source_paths = ["src/myenergy/"]
 also_copy = ["docs", "README.md", "mkdocs.yml", "scripts"]  # the tests read them too
 
 [tool.bandit]

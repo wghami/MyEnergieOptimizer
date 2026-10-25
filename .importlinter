@@ -1,24 +1,24 @@
-# Import contracts for myenergie (docs/standards/project/architecture.md).
+# Import contracts for myenergy (docs/standards/project/architecture.md).
 [importlinter]
-root_package = myenergie
+root_package = myenergy
 include_external_packages = True
 
 [importlinter:contract:layers]
 name = Layers depend downwards only (MEO-ARC-2)
 type = layers
 layers =
-    myenergie.bootstrap
-    myenergie.api | myenergie.adapters
-    myenergie.engine | myenergie.policies
-    myenergie.ports
-    myenergie.domain
+    myenergy.bootstrap
+    myenergy.api | myenergy.adapters
+    myenergy.engine | myenergy.policies
+    myenergy.ports
+    myenergy.domain
 
 [importlinter:contract:pure-domain]
 name = The domain is pure (MEO-ARC-1)
 type = forbidden
 source_modules =
-    myenergie.domain
-    myenergie.ports
+    myenergy.domain
+    myenergy.ports
 forbidden_modules =
     clingo
     dishka
@@ -33,11 +33,11 @@ forbidden_modules =
 name = Engine and policies reach the outside only through ports (MEO-ARC-3)
 type = forbidden
 source_modules =
-    myenergie.engine
-    myenergie.policies
+    myenergy.engine
+    myenergy.policies
 forbidden_modules =
-    myenergie.adapters
-    myenergie.api
+    myenergy.adapters
+    myenergy.api
     clingo
     dishka
     fastapi
@@ -48,16 +48,16 @@ forbidden_modules =
 name = Adapters and the API never reach into the core (MEO-ARC-4)
 type = forbidden
 source_modules =
-    myenergie.adapters
-    myenergie.api
+    myenergy.adapters
+    myenergy.api
 forbidden_modules =
-    myenergie.engine
-    myenergie.policies
+    myenergy.engine
+    myenergy.policies
 
 [importlinter:contract:no-test-imports]
 name = Production code never imports test code (ARC-5)
 type = forbidden
-source_modules = myenergie
+source_modules = myenergy
 forbidden_modules =
     pytest
     hypothesis

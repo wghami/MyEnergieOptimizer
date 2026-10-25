@@ -1,4 +1,4 @@
-# Project-specific standards — MyEnergieOptimizer
+# Project-specific standards — MyEnergyOptimizer
 
 These rules **extend** the generic standards (01–11) and never weaken them. IDs are prefixed
 `MEO-` so `standards check-standards` keeps every ID unique. This folder is owned by the project;

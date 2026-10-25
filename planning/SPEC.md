@@ -1,4 +1,4 @@
-# MyEnergieOptimizer — Specification (v1.0)
+# MyEnergyOptimizer — Specification (v1.0)
 
 > Status: **agreed** (decisions in §12). Delivery is tracked in `ROADMAP.md`; the binding engineering
 > rules are in `docs/standards/` (generic, from the template) and `docs/standards/project/`.
@@ -195,7 +195,7 @@ A policy with uncovered situations is rejected before simulation.
 ## 8. Architecture & code organisation
 
 ```
-src/myenergie/
+src/myenergy/
   domain/          # time, series, assets, topology, tariffs, state, decision, flows, kpis  (pure)
   ports/           # Protocols: ProfileSource, TariffSource, Forecaster, DispatchPolicy,
                    #            ScenarioRepository, JobRunner, Clock
@@ -225,7 +225,7 @@ tests/  unit/ property/ integration/ api/  contract/ (every adapter passes its p
     simulation). It integrates with FastAPI.
   - No service locators and no globals.
 - **Plugins:** `Registry[T]` keyed by `kind`, filled from `importlib.metadata` entry points
-  (`myenergie.assets`, `myenergie.profiles`, `myenergie.policies`, …). Third-party packages can
+  (`myenergy.assets`, `myenergy.profiles`, `myenergy.policies`, …). Third-party packages can
   extend the app without forking it.
 - **Quality gates:**
   - `ruff` (lint + format) and `pyright --strict` (or mypy strict).
@@ -282,4 +282,4 @@ tests/  unit/ property/ integration/ api/  contract/ (every adapter passes its p
    EU JRC, Open-Meteo). These sit behind an `IrradianceSource` port, and a `PVModel` (e.g. pvlib)
    turns irradiance into a production `ProfileSource`.
 5. Persistence in v1: in-memory / files.
-6. Package name: `myenergie`.
+6. Package name: `myenergy`.

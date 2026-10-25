@@ -874,7 +874,7 @@ wheels = [
 ]
 
 [[package]]
-name = "myenergieoptimizer"
+name = "myenergyoptimizer"
 source = { editable = "." }
 
 [package.dev-dependencies]

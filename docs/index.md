@@ -1,4 +1,4 @@
-# MyEnergieOptimizer
+# MyEnergyOptimizer
 
 Simulate a home or energy-community electricity system whose dispatch is decided by user-written logic rules, built on SmartMDAO.
 

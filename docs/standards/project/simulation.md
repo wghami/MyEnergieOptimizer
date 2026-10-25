@@ -1,4 +1,4 @@
-# Simulation — MyEnergieOptimizer
+# Simulation — MyEnergyOptimizer
 
 ## Information and decisions
 
