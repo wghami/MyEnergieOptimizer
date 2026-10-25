@@ -1,0 +1,120 @@
+# Taxes and contributions on a household electricity bill (mainland France).
+# Coverage starts on 2024-08-01, with the oldest TURPE table held; the earliest rates below are
+# older than that, but nothing before 2024-08-01 is claimed. Each version lasts until the next
+# version of the same key starts.
+
+[sources.energie-info]
+title = "Médiateur national de l'énergie, energie-info.fr: CSPE, TICGN, CTA, TVA, toutes les taxes sur ma facture"
+url = "https://www.energie-info.fr/fiche_pratique/cspe-ticgn-cta-tva-toutes-les-taxes-sur-ma-facture/"
+
+[sources.arrete-2024-01-25]
+title = "Arrêté du 25 janvier 2024 pris en application des I et II de l'article 92 de la loi de finances pour 2024 (accise rates from 2024-02-01)"
+url = "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000049059983"
+
+[sources.guide-fiscalite-2025]
+title = "Ministère de la transition écologique, Guide 2025 sur la fiscalité des énergies (accise rates from 2025-02-01 and 2025-08-01)"
+url = "https://www.ecologie.gouv.fr/sites/default/files/documents/Guide%202025%20sur%20la%20fiscalit%C3%A9%20des%20%C3%A9nergies.pdf"
+
+[sources.cta-arrete-2026]
+title = "Arrêté fixing the CTA rate on distribution at 15 % from 2026-02-01"
+url = "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053417026"
+
+[sources.collective-excise]
+title = "Seban Avocats on the zero excise for collective self-consumption (Finance Act 2025, art. 75; CIBS L. 312-79 and L. 312-87); secondary source"
+url = "https://www.seban-associes.avocat.fr/accise-sur-lelectricite-confirmation-de-la-dispense-en-autoconsommation-collective-etendue/"
+
+# CTA: a share of the fixed part of TURPE on distribution (management, metering, b × P).
+[[rates]]
+component = "cta"
+selectors = { network = "distribution" }
+unit = "%"
+
+[[rates.versions]]
+from = 2024-08-01
+source = "energie-info"
+status = "official"
+value = 21.93
+
+[[rates.versions]]
+from = 2026-02-01
+source = "cta-arrete-2026"
+status = "official"
+value = 15.0
+
+# Accise sur l'électricité, category "ménages et assimilés", on energy taken from the grid.
+[[rates]]
+component = "excise"
+selectors = { category = "household", origin = "grid" }
+unit = "EUR/MWh"
+
+[[rates.versions]]
+from = 2024-08-01
+source = "arrete-2024-01-25"
+status = "official"
+value = 21.00
+
+[[rates.versions]]
+from = 2025-02-01
+source = "guide-fiscalite-2025"
+status = "official"
+value = 33.70
+
+[[rates.versions]]
+from = 2025-08-01
+source = "guide-fiscalite-2025"
+status = "official"
+value = 29.98
+
+[[rates.versions]]
+from = 2026-02-01
+source = "energie-info"
+status = "official"
+value = 30.85
+
+[[rates.versions]]
+from = 2026-08-01
+source = "energie-info"
+status = "official"
+value = 30.62
+
+# Energy shared in a collective self-consumption operation (renewable, plant below 1 MW).
+[[rates]]
+component = "excise"
+selectors = { category = "household", origin = "collective" }
+unit = "EUR/MWh"
+
+[[rates.versions]]
+from = 2025-03-01
+source = "collective-excise"
+status = "to-verify"
+value = 0.0
+
+# VAT: "subscription" covers fixed charges and the CTA; "consumption" covers energy charges and
+# the excise. The reduced rate on subscriptions ended on 2025-08-01.
+[[rates]]
+component = "vat"
+selectors = { base = "subscription" }
+unit = "%"
+
+[[rates.versions]]
+from = 2024-08-01
+source = "energie-info"
+status = "official"
+value = 5.5
+
+[[rates.versions]]
+from = 2025-08-01
+source = "energie-info"
+status = "official"
+value = 20.0
+
+[[rates]]
+component = "vat"
+selectors = { base = "consumption" }
+unit = "%"
+
+[[rates.versions]]
+from = 2024-08-01
+source = "energie-info"
+status = "official"
+value = 20.0

@@ -16,9 +16,11 @@ decision 14).
 
 - The domain defines `RateKey` (component + selectors) and `RateVersion` (value, unit, validity
   `[from, to)`, source document, status). Lookup is exact: no interpolation, no "latest known".
-- The `RateSource` port answers `rate(key, on: date) -> RateVersion` and lists versions; it raises
-  when no version covers the date or more than one does.
-- M2 ships a **packaged-TOML adapter**: one file per component family, reviewed in pull requests.
+- The `RateSource` port lists its keys (`catalog()`) and returns a key's `RateHistory`
+  (`history(key)`). The history refuses overlapping versions when it is built, and `on(day)`
+  raises when no version covers the day.
+- M2 ships a **packaged-TOML adapter**: one file per TURPE deliberation plus one for taxes,
+  reviewed in pull requests. A version without an end date lasts until the next one starts.
 - M9 adds a **database adapter** (SQLite first) behind the same port, with the same keys indexed,
   and the agent writes only `to-verify` rows. The TOML files can seed it.
 - The engine refuses `to-verify` versions in a bill unless the caller allows them explicitly.

@@ -27,3 +27,15 @@ class UnknownProfileError(DomainError):
 
 class CalibrationError(DomainError):
     """A profile cannot be scaled as requested (e.g. a window with no energy)."""
+
+
+class RateError(DomainError):
+    """A rate is missing, ambiguous, unverified, or its history is inconsistent."""
+
+
+class UnknownRateError(RateError):
+    """No rate table has this component and these selectors."""
+
+
+class UnverifiedRateError(RateError):
+    """A ``to-verify`` rate was requested where only official rates are allowed."""
