@@ -11,4 +11,6 @@ Simulate a home or energy-community electricity system whose dispatch is decided
   energy.
 - [Profiles](architecture/profiles.md): shapes, sources, and the scalings that turn them into kW.
 - [Rates](architecture/rates.md): dated network tariffs and taxes, with their sources.
+- [Contract and time classes](architecture/time-classes.md): what a contract holds, and the
+  exact peak/off-peak and season share of every step.
 - [Wiring](architecture/wiring.md): settings, plugins and the dependency-injection container.
