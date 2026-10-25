@@ -21,7 +21,11 @@ Guiding principles:
    I/O, clingo or SmartMDAO. Every external concern sits behind a `Protocol`.
 4. **Open for extension, closed for modification.** New asset kinds, profile sources, tariffs,
    forecasters and policies are plugins added to a registry. Existing code is never edited to add one.
-5. **Checked before it runs** (the SmartMDAO ethos). Before any simulation, a policy is validated
+5. **Nothing country- or offer-specific is hard-wired.** Regulated structures (time classes,
+   rate components, contract rules) are data or plugins on generic types, so a new offer or
+   another country needs as few code changes as possible; norms that do not prevent pricing are
+   warnings, not errors (ADR 0007).
+6. **Checked before it runs** (the SmartMDAO ethos). Before any simulation, a policy is validated
    exhaustively over its finite set of facts.
 
 ## 2. Scope

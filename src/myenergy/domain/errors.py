@@ -42,4 +42,12 @@ class UnverifiedRateError(RateError):
 
 
 class ContractError(DomainError):
-    """A supply contract, or its off-peak hours, breaks a tariff rule."""
+    """A supply contract breaks a tariff rule."""
+
+
+class ScheduleError(DomainError):
+    """A time-of-use schedule is malformed, ambiguous, or leaves instants without a period."""
+
+
+class TariffWarning(UserWarning):
+    """A contract departs from the usual regulated values; it is still priced as given."""

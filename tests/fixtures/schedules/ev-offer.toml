@@ -1,0 +1,17 @@
+# A made-up supplier offer for an electric car: used by tests and notebook 04.
+[schedules.ev-offer]
+default = "peak"
+
+[schedules.ev-offer.seasons]
+winter = "11-01..03-31"
+summer = { dates = "04-01..10-31", default = "summer-peak" }
+
+[[schedules.ev-offer.periods]]
+name = "super-off-peak"
+windows = "02:00-06:00"
+
+[[schedules.ev-offer.periods]]
+name = "off-peak"
+windows = "22:00-02:00 06:00-08:00"
+days = ["sat", "sun"]
+seasons = ["winter"]

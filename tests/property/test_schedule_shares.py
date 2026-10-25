@@ -1,4 +1,4 @@
-"""Time-class shares partition every step, and agree across steps: energy is never lost."""
+"""Schedule shares partition every step, and agree across steps: energy is never lost."""
 
 from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
@@ -7,26 +7,27 @@ import numpy as np
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
+from myenergy.domain.schedules import TimeWindow, TimeWindows
 from myenergy.domain.time import ALLOWED_STEPS, TimeGrid
-from myenergy.domain.time_classes import OffPeakHours, OffPeakWindow, TimeClassCalendar
+from myenergy.domain.time_classes import network_schedule
 
 PARIS = ZoneInfo("Europe/Paris")
 
 
 @st.composite
-def off_peak(draw: st.DrawFn) -> OffPeakHours:
+def off_peak(draw: st.DrawFn) -> TimeWindows:
     """One or two windows on half hours, disjoint on the clock."""
     starts = draw(st.lists(st.integers(0, 47), min_size=1, max_size=2, unique=True))
     first = min(starts)
-    windows: list[OffPeakWindow] = []
+    windows: list[TimeWindow] = []
     for index, start in enumerate(sorted(starts)):
         limit = [*sorted(starts), first + 48][index + 1]
         length = draw(st.integers(1, min(limit - start, 47)))
         end = (start + length) % 48
         windows.append(
-            OffPeakWindow(time(start // 2, 30 * (start % 2)), time(end // 2, 30 * (end % 2)))
+            TimeWindow(time(start // 2, 30 * (start % 2)), time(end // 2, 30 * (end % 2)))
         )
-    return OffPeakHours(tuple(windows))
+    return TimeWindows(tuple(windows))
 
 
 @st.composite
@@ -41,11 +42,11 @@ def grids(draw: st.DrawFn) -> TimeGrid:
 @settings(max_examples=150)
 @given(off_peak(), grids(), st.sampled_from(ALLOWED_STEPS))
 def test_shares_partition_each_step_and_agree_across_steps(
-    hours: OffPeakHours, hourly: TimeGrid, step: timedelta
+    hours: TimeWindows, hourly: TimeGrid, step: timedelta
 ) -> None:
-    calendar = TimeClassCalendar(hours)
-    coarse = calendar.weights(hourly).shares
-    fine = calendar.weights(hourly.with_step(step)).shares
+    schedule = network_schedule(hours)
+    coarse = schedule.weights(hourly).shares
+    fine = schedule.weights(hourly.with_step(step)).shares
     np.testing.assert_allclose(coarse.sum(axis=1), 1.0, atol=1e-12)
     assert coarse.min() >= -1e-12
     per_hour = int(timedelta(hours=1) / step)
