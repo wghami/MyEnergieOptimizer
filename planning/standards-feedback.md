@@ -14,6 +14,18 @@ becomes an issue on the template repository; never weaken a rule locally instead
 
 -->
 
+## 2026-10-25 — DOC-4, TST-11, TST-12, CI-7: five gate holes found rolling out v0.3.1
+
+- **Context:** first main-branch run after updating to v0.3.2; the docs job, the release job and
+  the nightly job failed, while the local hooks had passed.
+- **Problem:** (1) `mkdocs build --strict --quiet` lets warnings through, so the local docs gate
+  was blind; (2) project pages had to be listed in the template-owned `mkdocs.yml` nav, which the
+  update replaced; (3) zero mutants (no functions yet) failed the nightly job like a crash;
+  (4) the perf job hit a pytest usage error; (5) an open release blocker turned `main` red on a
+  push that released nothing.
+- **Proposal:** fix all five upstream, each with a test or smoke check.
+- **Status:** filed https://github.com/wghami/python-project-standards/issues/9, resolved in v0.3.3
+
 ## 2026-10-25 — DOC-10: the README task aborts `copier update` on existing projects
 
 - **Context:** updating this project from v0.2.x to v0.3.1.

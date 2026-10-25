@@ -3,6 +3,10 @@ site_description: Simulate a home or energy-community electricity system whose d
 site_url: https://wghami.github.io/MyEnergieOptimizer/
 repo_url: https://github.com/wghami/MyEnergieOptimizer
 strict: true
+# Project standards pages are linked from standards/project/README.md, not listed in the nav,
+# so projects never edit this template-managed file for them.
+not_in_nav: |
+  /standards/project/
 
 theme:
   name: material
