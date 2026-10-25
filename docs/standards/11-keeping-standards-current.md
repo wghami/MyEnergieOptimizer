@@ -23,9 +23,12 @@ uvx copier update --trust                                               # inside
 | STD-4 | A change to tooling configuration (hooks, workflows, `pyproject.toml`, `standards.toml`, `.importlinter`, `mkdocs.yml`) comes with a change to the standard that describes it. | `doc-impact` hook (DOC-5) |
 | STD-5 | Project-specific rules live in `docs/standards/project/`. They may add rules but never weaken a generic one; use a project prefix for their IDs. | review, `standards check-standards` (unique IDs) |
 | STD-6 | When a project discovers a rule that would help every project, it is proposed upstream rather than kept local. | review |
+| STD-7 | Friction with a generic rule (unclear, wrong, too costly, false positive, or a missing rule) is recorded in `planning/standards-feedback.md`, never worked around. AI agents do this too (`AGENTS.md`). Each entry becomes a "Standards feedback" issue on the template repository, and its URL is recorded in the entry. | `AGENTS.md`, issue form on the template repository, review |
 
 ## Changing a standard
 
+0. Most changes start as an entry in a project's `planning/standards-feedback.md` (STD-7), then
+   an issue on the template repository.
 1. Open a PR on the template repository. It changes the document **and** the tooling in the same
    PR, and its CI renders a sample project and runs the full pipeline on it.
 2. Merging releases a new template version automatically.

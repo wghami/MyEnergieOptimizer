@@ -40,7 +40,6 @@ dev = [
     "ruff>=0.17.2",
     "syrupy>=6.1.1",
     "zizmor>=1.31.1",
-    "smartmdao[mcp]>=1.30.0",
 ]
 docs = ["mkdocs-material>=9.8.0", "mkdocstrings-python>=2.0.10"]
 
@@ -50,7 +49,7 @@ default-groups = ["dev", "docs"]
 cache-keys = [{ file = "pyproject.toml" }, { git = { commit = true, tags = true } }]
 
 [tool.uv.sources]
-project-standards = { git = "https://github.com/wghami/python-project-standards", rev = "7a02bd855f363bf8d9a088c306c439691dbc37a2" }
+project-standards = { git = "https://github.com/wghami/python-project-standards", rev = "93b1d857c92c9d4119e025efde80b1d260e42def" }
 
 [tool.hatch.version]
 source = "vcs"
@@ -143,6 +142,7 @@ exclude_also = ["if TYPE_CHECKING:", "@overload", "^\\s*\\.\\.\\.$", "assert_nev
 
 [tool.mutmut]
 paths_to_mutate = ["src/myenergie/"]
+also_copy = ["docs", "README.md", "mkdocs.yml", "scripts"]  # the tests read them too
 
 [tool.bandit]
 exclude_dirs = ["tests"]

@@ -29,7 +29,7 @@ deliberate bugs.
 | TST-9 | `tests/arch/` | Import contracts, layer purity, extension points, hooks installed (`standards check-hooks-installed`) | import-linter, pytest |
 | TST-10 | `docs/`, `README.md` | Every Python code block in the docs runs | pytest-markdown-docs |
 | TST-11 | `tests/perf/` (`@pytest.mark.perf`) | Time budgets; run nightly and on PRs labelled `perf` | pytest-benchmark |
-| TST-12 | mutation | Mutation score ≥ the threshold set at render time; nightly, and on PRs labelled `mutation`. A failure opens a release blocker | mutmut, `standards check-mutation-score` |
+| TST-12 | mutation | Mutation score ≥ the threshold set at render time; nightly, and on PRs labelled `mutation`. Mutants that were never evaluated (a failing baseline run) fail too, so `[tool.mutmut] also_copy` lists every file the tests read. A failure opens a release blocker | mutmut, `standards check-mutation-score` |
 | TST-13 | `tests/integration/` (e2e) | The deployed shape works end to end (boot, request, result) | pytest |
 
 A suite only exists once there is something for it to test. The template creates `unit/` and

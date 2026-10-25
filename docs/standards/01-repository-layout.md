@@ -6,7 +6,8 @@
 │   ├── SPEC.md               # the specification (source of truth for scope)
 │   ├── ROADMAP.md            # milestones and their status
 │   ├── milestones/           # one file per milestone: goals, tasks, acceptance criteria
-│   └── adr/                  # Architecture Decision Records: NNNN-title.md
+│   ├── adr/                  # Architecture Decision Records: NNNN-title.md
+│   └── standards-feedback.md # friction with the generic standards, to file upstream (STD-7)
 ├── docs/                     # published documentation (mkdocs-material)
 │   ├── standards/            # these binding rules (from the template)
 │   │   └── project/          # project-specific rules (owned by the project)
@@ -15,7 +16,7 @@
 ├── src/<package>/            # the package
 ├── tests/                    # unit/ integration/ contract/ property/ golden/ api/ security/ perf/ arch/
 ├── scripts/                  # repository tooling used by hooks and CI (typed, tested)
-├── .github/                  # workflows, PR template, CODEOWNERS, dependabot.yml
+├── .github/                  # workflows, scripts/ for them, PR template, CODEOWNERS, dependabot.yml
 ├── standards.toml            # configuration of the `standards` checks
 ├── .copier-answers.yml       # which template release this project was rendered from
 ├── AGENTS.md, CLAUDE.md      # point AI agents to these standards

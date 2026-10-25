@@ -10,3 +10,11 @@ Project-specific rules live in `docs/standards/project/` and extend (never weake
 - Coverage: 100 % line + branch. Never add `pragma: no cover`; never add a reasonless `noqa`/ignore.
 - Generic standards come from the `python-project-standards` template: improve them **there**
   (see `docs/standards/11-keeping-standards-current.md`), then `copier update` here.
+
+## Feedback on the standards (STD-7)
+
+Whenever a generic rule is unclear, wrong, too costly, produces a false positive, or is missing,
+**do not work around it**. Append an entry to `planning/standards-feedback.md` (format in the
+file): the rule, the context, the problem and a proposal. Mention it to the user, who files it
+upstream as a "Standards feedback" issue on `wghami/python-project-standards`. Record the issue
+URL in the entry. A fix arrives through a template release and `copier update`.

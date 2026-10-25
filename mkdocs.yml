@@ -1,5 +1,6 @@
 site_name: MyEnergieOptimizer
 site_description: Simulate a home or energy-community electricity system whose dispatch is decided by user-written logic rules, built on SmartMDAO.
+site_url: https://wghami.github.io/MyEnergieOptimizer/
 repo_url: https://github.com/wghami/MyEnergieOptimizer
 strict: true
 
@@ -57,8 +58,4 @@ nav:
       - standards/09-ci-cd.md
       - standards/10-definition-of-done.md
       - standards/11-keeping-standards-current.md
-      - Project-specific:
-          - standards/project/README.md
-          - standards/project/architecture.md
-          - standards/project/simulation.md
-          - standards/project/security.md
+      - Project-specific: standards/project/README.md

@@ -47,4 +47,5 @@ uv run pre-commit install
 | `doc-impact` | Docs changed together with what they describe (DOC-5); compares with `STANDARDS_BASE_REF` or `origin/main` |
 | `version-tag` | Version from tags; latest tag published (VER-1, VER-3) |
 | `standards-docs` | Standards consistent with the tooling (DOC-6) |
+| `readme` | README badges and gates table regenerated from the configuration (DOC-10) |
 | `hook-parity` | CI reruns every stage (HK-5) |

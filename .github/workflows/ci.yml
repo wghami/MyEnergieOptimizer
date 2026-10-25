@@ -106,6 +106,31 @@ jobs:
       - run: uv sync
       - run: uv run pip-audit --skip-editable --progress-spinner off
 
+  badges:
+    name: publish measured badges
+    needs: [pre-push-stage]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # push to the badges branch only
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      - run: uv sync
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: coverage
+      - name: Measure (from the gates' own reports)
+        run: |
+          uv run interrogate --fail-under 0 --ignore-private --ignore-semiprivate --ignore-magic --ignore-nested-functions src > interrogate.txt || true
+          uv run standards badge coverage coverage.xml --out badges/coverage.json
+          uv run standards badge docstrings interrogate.txt --out badges/docstrings.json
+      - run: bash .github/scripts/publish-badges.sh badges
+        env:
+          GH_TOKEN: ${{ github.token }}
+
   release:
     name: release (tag, build, SBOM, GitHub Release)
     needs: [pre-commit-stage, pre-push-stage, secrets, audit]
@@ -184,7 +209,7 @@ jobs:
           uv run standards check-version --remote origin --released
 
   pages:
-    name: publish docs
+    name: publish and verify docs
     needs: [pre-commit-stage, pre-push-stage]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -202,9 +227,21 @@ jobs:
       - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
       - run: uv sync
       - run: uv run mkdocs build --strict
+      - name: Mark the build, so the check below can prove what is served (DOC-11)
+        run: |
+          printf '{"commit": "%s"}\n' "${GITHUB_SHA}" > site/build.json
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: site
       - id: deploy
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+      - name: Verify the deployed site serves every page of this build (DOC-11)
+        run: |
+          for attempt in $(seq 1 20); do
+            if uv run standards check-site "${SITE_URL}" --commit "${GITHUB_SHA}"; then exit 0; fi
+            echo "attempt ${attempt}/20: waiting for the CDN"; sleep 15
+          done
+          exit 1
+        env:
+          SITE_URL: ${{ steps.deploy.outputs.page_url }}

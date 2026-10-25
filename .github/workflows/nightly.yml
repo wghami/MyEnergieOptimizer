@@ -19,7 +19,7 @@ jobs:
     if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'mutation')
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write # publish the mutation badge to the badges branch
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -28,6 +28,13 @@ jobs:
       - run: uv sync
       - run: uv run mutmut run --max-children 4 || true # the score below is the gate
       - run: uv run mutmut export-cicd-stats
+      - name: Publish the measured score, pass or fail (CI-10)
+        if: github.event_name != 'pull_request'
+        run: |
+          uv run standards badge mutation mutants/mutmut-cicd-stats.json --out badges/mutation.json
+          bash .github/scripts/publish-badges.sh badges
+        env:
+          GH_TOKEN: ${{ github.token }}
       - run: uv run standards check-mutation-score mutants/mutmut-cicd-stats.json --min 90
 
   perf:
