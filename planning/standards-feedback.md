@@ -14,6 +14,17 @@ becomes an issue on the template repository; never weaken a rule locally instead
 
 -->
 
+## 2026-10-25 — missing rule: a git-ignored place for personal data
+
+- **Context:** the user provided a real electricity bill as a test reference; it must never reach
+  GitHub.
+- **Problem:** the template has no convention for personal or confidential inputs; each project
+  would improvise, and a slip publishes personal data.
+- **Proposal:** the template's `.gitignore` ignores `private/`; a rule (e.g. SEC-14) says personal
+  data lives only there; tests that need it are skipped when it is absent, and CI uses synthetic
+  equivalents with the same structure.
+- **Status:** open (applied locally in `.gitignore` meanwhile)
+
 ## 2026-10-25 — COM-4: a breaking PR title can never pass `check-pr-title`
 
 - **Context:** the PR renaming the project, titled `build(release)!: …`.

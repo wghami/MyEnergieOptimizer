@@ -54,6 +54,8 @@ nav:
   - Home: index.md
   - Notebooks: notebooks/README.md
   - Scripts: scripts.md
+  - Architecture:
+      - architecture/time-and-series.md
   - Reference: reference.md
   - Standards:
       - standards/README.md

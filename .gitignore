@@ -18,3 +18,7 @@ build/
 .env.*
 requirements.txt
 release-notes.md
+
+# Personal data (bills, meter exports): never committed
+private/
+.cache/
