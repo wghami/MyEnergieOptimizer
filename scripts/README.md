@@ -20,4 +20,5 @@ Every script (DOC-13):
 
 ## Scripts
 
-_None yet._
+- `scripts/export_profile.py`: export any profile (Enedis, CSV, synthetic) as kW on any grid,
+  with any scaling, to check it in a spreadsheet or another tool.
