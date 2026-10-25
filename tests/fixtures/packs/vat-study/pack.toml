@@ -1,0 +1,13 @@
+# A made-up research pack: French households, with VAT at 5.5 % on everything and no warnings.
+checks = []
+
+[pack]
+name = "vat-study"
+title = "French households, VAT at 5.5 % on everything (research scenario)"
+extends = "fr-household"
+tags = { purpose = "research", source = "hypothetical" }
+
+[fields.status]
+values = ["consumer"]
+default = "consumer"
+description = "this study covers plain consumers only"

@@ -1,6 +1,6 @@
 # 0007 — Time-of-use periods are user-defined schedules; the network classes are one of them
 
-Status: accepted
+Status: accepted (the network schedule and the contract moved into tariff packs, ADR 0008)
 Date: 2026-10-25
 
 ## Context

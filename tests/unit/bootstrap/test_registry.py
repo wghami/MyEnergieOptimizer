@@ -5,12 +5,7 @@ from importlib.metadata import EntryPoint
 import pytest
 
 from myenergy.bootstrap.registry import Registry, RegistryError, load_entry_points
-from myenergy.ports.plugins import (
-    PROFILE_SOURCES_GROUP,
-    RATE_SOURCES_GROUP,
-    ProfileSourcePlugin,
-    RateSourcePlugin,
-)
+from myenergy.ports.plugins import PROFILE_SOURCES_GROUP, ProfileSourcePlugin
 
 
 def test_register_and_iterate() -> None:
@@ -31,8 +26,6 @@ def test_register_and_iterate() -> None:
 def test_installed_built_ins_are_entry_points() -> None:
     registry = load_entry_points(PROFILE_SOURCES_GROUP, "profile source", ProfileSourcePlugin)
     assert set(registry.names()) >= {"enedis", "synthetic"}
-    rates = load_entry_points(RATE_SOURCES_GROUP, "rate source", RateSourcePlugin)
-    assert "toml" in rates.names()
 
 
 def test_entry_points_are_sorted_and_checked() -> None:

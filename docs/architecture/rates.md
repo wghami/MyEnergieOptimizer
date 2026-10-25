@@ -44,9 +44,9 @@ publishes them. The `-AC` options are those of collective self-consumption below
 substation: energy from the operation (`origin=collective`) pays a lower rate than energy from
 the grid.
 
-## Packaged tables (`myenergy.adapters.rates`)
+## The French tables (`fr-household` pack)
 
-`TomlRateSource` reads TOML files: one per TURPE deliberation (`turpe6-2024-08-01.toml`,
+Rates belong to a [tariff pack](packs.md). `TomlRateSource` reads a pack's `rates/` folder: one file per TURPE deliberation (`turpe6-2024-08-01.toml`,
 `turpe6-2025-02-01.toml`, `turpe7-2025-08-01.toml`, `turpe7-2026-08-01.toml`) and `taxes.toml`.
 Coverage starts on **2024-08-01**. Each file cites its documents under `[sources.<id>]`; values are
 written in the published unit (`cEUR/kWh`, `EUR/MWh`, `%`, …) and converted exactly on load. A
@@ -61,9 +61,8 @@ multiples of 0.12 €; TURPE 7 rose by exactly 3.04 % on 2026-08-01).
 The only `to-verify` value today is the zero excise on energy shared in a collective
 self-consumption operation (from 2025-03-01).
 
-## Choosing the source
+## Where rates come from
 
-The container provides one `RateSource`, chosen by `MYENERGY_RATE_SOURCE` (default `toml`, the
-packaged tables). `MYENERGY_SOURCES__TOML__ROOT` points the built-in plugin at another folder of
-TOML files. A new store (the M9 database) is an entry point of the `myenergy.rate_sources` group;
-see [Wiring](wiring.md).
+Each [tariff pack](packs.md) holds its rates in its `rates/` folder; `PackSource.rates(name)`
+returns them, those of the packs it extends included (a key redefined by a pack hides the
+inherited history). The `RateSource` port stays the same for a future database of rates.

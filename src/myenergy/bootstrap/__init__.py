@@ -1,8 +1,8 @@
 """Composition root: the only place that wires concrete adapters to ports (ADR 0002, MEO-DI-1).
 
 ``make_app_container()`` builds the APP-scoped container: settings, the configured profile
-sources, the ``ProfileResolver`` and the selected ``RateSource``. Tests pass their own ``Settings``
-and plugin registries instead of patching anything (DI-3).
+sources, the ``ProfileResolver`` and the ``PackSource`` (built-in and user tariff packs). Tests
+pass their own ``Settings`` and plugin registry instead of patching anything (DI-3).
 """
 
 from collections.abc import Mapping
@@ -15,17 +15,13 @@ from dishka import (
     provide,  # pyright: ignore[reportUnknownVariableType]  # dishka types provide() loosely
 )
 
+from myenergy.adapters.packs.toml_files import TomlPackSource, builtin_packs
 from myenergy.bootstrap.registry import Registry, load_entry_points
 from myenergy.bootstrap.settings import Settings
 from myenergy.engine.profiles import ProfileResolver
-from myenergy.ports.plugins import (
-    PROFILE_SOURCES_GROUP,
-    RATE_SOURCES_GROUP,
-    ProfileSourcePlugin,
-    RateSourcePlugin,
-)
+from myenergy.ports.packs import PackSource
+from myenergy.ports.plugins import PROFILE_SOURCES_GROUP, ProfileSourcePlugin
 from myenergy.ports.profiles import ProfileSource
-from myenergy.ports.rates import RateSource
 
 
 def profile_source_plugins() -> Registry[ProfileSourcePlugin]:
@@ -33,13 +29,8 @@ def profile_source_plugins() -> Registry[ProfileSourcePlugin]:
     return load_entry_points(PROFILE_SOURCES_GROUP, "profile source", ProfileSourcePlugin)
 
 
-def rate_source_plugins() -> Registry[RateSourcePlugin]:
-    """Every installed rate-source plugin (built-in or third-party)."""
-    return load_entry_points(RATE_SOURCES_GROUP, "rate source", RateSourcePlugin)
-
-
 class AppProvider(Provider):
-    """APP scope: settings, profile sources, profile resolver, rate source."""
+    """APP scope: settings, profile sources, profile resolver, tariff packs."""
 
     scope = Scope.APP
 
@@ -47,13 +38,11 @@ class AppProvider(Provider):
         self,
         settings: Settings,
         plugins: Registry[ProfileSourcePlugin],
-        rate_plugins: Registry[RateSourcePlugin],
     ) -> None:
         """Use these settings and these plugins."""
         super().__init__()
         self._settings = settings
         self._plugins = plugins
-        self._rate_plugins = rate_plugins
 
     @provide
     def settings(self) -> Settings:
@@ -76,26 +65,18 @@ class AppProvider(Provider):
         return ProfileResolver(sources)
 
     @provide
-    def rate_source(self, settings: Settings) -> RateSource:
-        """The rate source named by ``settings.rate_source``, built from its options.
+    def packs(self, settings: Settings) -> PackSource:
+        """The built-in tariff packs and those in ``settings.pack_roots``.
 
         Raises:
-            RegistryError: no rate-source plugin has that name.
+            DataFormatError: a malformed pack, or two packs with one name.
         """
-        name = settings.rate_source
-        return self._rate_plugins.get(name).create(settings.options(name))
+        return TomlPackSource([builtin_packs(), *settings.pack_roots])
 
 
 def make_app_container(
     settings: Settings | None = None,
     plugins: Registry[ProfileSourcePlugin] | None = None,
-    rate_plugins: Registry[RateSourcePlugin] | None = None,
 ) -> Container:
     """The application container (call ``close()`` when done)."""
-    return make_container(
-        AppProvider(
-            settings or Settings(),
-            plugins or profile_source_plugins(),
-            rate_plugins or rate_source_plugins(),
-        )
-    )
+    return make_container(AppProvider(settings or Settings(), plugins or profile_source_plugins()))

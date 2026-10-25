@@ -65,6 +65,7 @@ nav:
       - architecture/profiles.md
       - architecture/rates.md
       - architecture/schedules.md
+      - architecture/packs.md
       - architecture/wiring.md
   - Reference: reference.md
   - Standards:

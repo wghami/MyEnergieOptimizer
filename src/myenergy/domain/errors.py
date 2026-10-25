@@ -45,6 +45,10 @@ class ContractError(DomainError):
     """A supply contract breaks a tariff rule."""
 
 
+class UnknownPackError(DomainError):
+    """No tariff pack has this name."""
+
+
 class ScheduleError(DomainError):
     """A time-of-use schedule is malformed, ambiguous, or leaves instants without a period."""
 

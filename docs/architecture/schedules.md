@@ -1,6 +1,6 @@
-# Time-of-use schedules and the contract
+# Time-of-use schedules
 
-Design: SPEC §3.1, ADR 0007, [M2](https://github.com/wghami/MyEnergyOptimizer/blob/main/planning/milestones/M2.md).
+Design: SPEC §3.1, ADR 0007, ADR 0008, [M2](https://github.com/wghami/MyEnergyOptimizer/blob/main/planning/milestones/M2.md).
 Notebook: [04 — Time-of-use schedules](../notebooks/04-time-of-use-schedules.ipynb).
 
 ## Schedules (`myenergy.domain.schedules`)
@@ -54,31 +54,11 @@ seasons = ["winter"]
 `read_schedules(path)` returns every schedule of a file by name; files are size-limited and
 schema-checked, and errors name the file and the schedule.
 
-## The network's time classes (`myenergy.domain.time_classes`)
+## Network and supply schedules of a contract
 
-The French network tariff (TURPE) prices energy by HPH, HCH, HPB, HCB: off-peak or peak hours of
-the high season (November–March) or the low season. `network_schedule(off_peak,
-low_season_off_peak=None)` builds that schedule from a connection's off-peak hours, which may
-differ between seasons. It is an ordinary `Schedule`; nothing else in the code depends on there
-being four classes.
-
-## Contract (`myenergy.domain.contract`)
-
-| Field | Values | Used for |
-|---|---|---|
-| `subscribed_kva` | `0 < P ≤ 36` (Decimal) | power part of TURPE (b × P) |
-| `supply_option` | `base`, `hp-hc` | the supplier schedule when `supply` is not given |
-| `fta` | `CU`, `CU4`, `MU4`, `MUDT`, `LU`, `CU4-AC`, `MU4-AC` | network option |
-| `off_peak`, `low_season_off_peak` | `TimeWindows` (the second only when seasons differ) | network schedule |
-| `supply` | any `Schedule` | the supplier's own periods |
-| `status` | `consumer`, `collective`, `producer-injection` | management component |
-| `access_contract` | `supplier` (contrat unique), `user` (CARD) | management component |
-| `meter` | `metered`, `unmetered` | metering component |
-
-A contract carries **two schedules**: `network_schedule()` (the four classes on the connection's
-off-peak hours) and `supply_schedule()` (`supply` when given; otherwise one period for `base`, or
-`HP`/`HC` on the connection's off-peak hours for `hp-hc`).
-
-Hard errors are kept for what cannot be priced: a power outside `(0, 36]` kVA, a collective option
-without the collective status. A time-of-use contract with other than **8 off-peak hours a day**
-(the TURPE norm) is accepted with a `TariffWarning` and priced as given.
+A contract follows a [tariff pack](packs.md), which builds its two schedules:
+`pack.network_schedule(contract)` (for `fr-household`, the four TURPE time classes HPH, HCH, HPB,
+HCB on the connection's off-peak hours, which may differ by season) and
+`pack.supply_schedule(contract)` (the contract's own `supply` schedule, any `Schedule`, or the one
+of its supply option). Nothing else in the code depends on there being four classes, or two
+seasons, or 8 off-peak hours: those are data of the pack.

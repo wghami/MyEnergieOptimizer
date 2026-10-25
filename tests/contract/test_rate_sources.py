@@ -9,7 +9,7 @@ from decimal import Decimal
 
 import pytest
 
-from myenergy.adapters.rates.toml_files import TomlRateSource, packaged_rate_files
+from myenergy.adapters.packs.toml_files import TomlPackSource, builtin_packs
 from myenergy.domain.errors import UnknownRateError
 from myenergy.domain.rates import RateHistory, RateKey, RateStatus, RateUnit, RateVersion
 from myenergy.ports.rates import RateSource
@@ -44,7 +44,7 @@ class MemoryRates:
 
 
 SOURCES: dict[str, Callable[[], RateSource]] = {
-    "packaged": lambda: TomlRateSource(packaged_rate_files()),
+    "fr-household": lambda: TomlPackSource([builtin_packs()]).rates("fr-household"),
     "memory": MemoryRates,
 }
 

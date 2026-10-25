@@ -1,0 +1,6 @@
+[schedules.day-night]
+default = "day"
+
+[[schedules.day-night.periods]]
+name = "night"
+windows = "21:00-07:00"

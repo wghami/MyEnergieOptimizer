@@ -5,12 +5,10 @@ from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 
-import pytest
-
 from myenergy.bootstrap import make_app_container, profile_source_plugins
-from myenergy.bootstrap.registry import Registry, RegistryError
+from myenergy.bootstrap.registry import Registry
 from myenergy.bootstrap.settings import Settings
-from myenergy.domain.errors import UnknownRateError
+from myenergy.domain.packs import tagged
 from myenergy.domain.profiles import (
     Nominal,
     ProfileKind,
@@ -19,13 +17,13 @@ from myenergy.domain.profiles import (
     Shaped,
     TimestampLabel,
 )
-from myenergy.domain.rates import RateHistory, RateKey, RateStatus, RateUnit, RateVersion
+from myenergy.domain.rates import RateKey
 from myenergy.domain.series import Quantity, TimeSeries
 from myenergy.domain.time import TimeGrid
 from myenergy.engine.profiles import ProfileResolver
-from myenergy.ports.plugins import ProfileSourcePlugin, RateSourcePlugin
+from myenergy.ports.packs import PackSource
+from myenergy.ports.plugins import ProfileSourcePlugin
 from myenergy.ports.profiles import ProfileSource
-from myenergy.ports.rates import RateSource
 
 FIXTURES = Path(__file__).parents[1] / "fixtures" / "enedis"
 DAY = TimeGrid(
@@ -35,8 +33,8 @@ DAY = TimeGrid(
 )
 
 
-def settings(rate_source: str = "toml", **sources: dict[str, str]) -> Settings:
-    return Settings(_env_file=None, sources=sources, rate_source=rate_source)  # pyright: ignore[reportCallIssue]  # pydantic-settings init option
+def settings(pack_roots: list[Path] | None = None, **sources: dict[str, str]) -> Settings:
+    return Settings(_env_file=None, sources=sources, pack_roots=pack_roots or [])  # pyright: ignore[reportCallIssue]  # pydantic-settings init option
 
 
 def test_installed_plugins_build_the_configured_sources() -> None:
@@ -109,68 +107,37 @@ def test_a_new_plugin_joins_without_editing_code() -> None:
         container.close()
 
 
-def test_the_packaged_rate_tables_are_the_default_rate_source() -> None:
+def test_built_in_packs_are_provided() -> None:
     container = make_app_container(settings())
     try:
-        rates = container.get(RateSource)
-        cta = rates.history(RateKey.of("cta", network="distribution"))
+        packs = container.get(PackSource)
+        assert [pack.name for pack in packs.catalog()] == ["fr-household"]
+        cta = packs.rates("fr-household").history(RateKey.of("cta", network="distribution"))
         assert cta.on(date(2026, 8, 1)).value == Decimal("0.15")
     finally:
         container.close()
 
 
-class _FixedRates:
-    """A test-only rate source, written against the port only."""
-
-    name = "fixed"
-
-    def __init__(self, vat: str) -> None:
-        key = RateKey.of("vat", base="consumption")
-        version = RateVersion(
-            value=Decimal(vat),
-            unit=RateUnit.FRACTION,
-            valid_from=date(2020, 1, 1),
-            valid_to=None,
-            source="test",
-            status=RateStatus.TO_VERIFY,
-        )
-        self._history = RateHistory(key, [version])
-
-    def catalog(self) -> Sequence[RateKey]:
-        return [self._history.key]
-
-    def history(self, key: RateKey) -> RateHistory:
-        if key != self._history.key:
-            raise UnknownRateError(str(key))
-        return self._history
-
-
-class FixedRatesPlugin:
-    """A test-only rate plugin (think: a database); it joins without editing code (MEO-PLG-4)."""
-
-    name = "fixed"
-
-    def create(self, options: Mapping[str, str]) -> RateSource:
-        return _FixedRates(options.get("vat", "0.2"))
-
-
-def test_a_new_rate_source_is_selected_by_settings() -> None:
-    rate_plugins = Registry[RateSourcePlugin]("rate source")
-    rate_plugins.register("fixed", FixedRatesPlugin())
-    container = make_app_container(
-        settings("fixed", fixed={"vat": "0.055"}), profile_source_plugins(), rate_plugins
+def test_a_user_pack_joins_through_settings_without_code(tmp_path: Path) -> None:
+    """MEO-PLG-4 for packs: a research pack is a folder named in the settings."""
+    study = tmp_path / "flat-vat"
+    (study / "rates").mkdir(parents=True)
+    (study / "pack.toml").write_text(
+        '[pack]\nname = "flat-vat"\ntitle = "t"\nextends = "fr-household"\n'
+        'tags = { purpose = "research" }\n',
+        encoding="utf-8",
     )
+    (study / "rates" / "vat.toml").write_text(
+        '[sources.s]\ntitle = "hypothesis"\nurl = "https://example.org"\n'
+        '[[rates]]\ncomponent = "vat"\nselectors = { base = "consumption" }\nunit = "%"\n'
+        '[[rates.versions]]\nfrom = 2024-08-01\nsource = "s"\nstatus = "to-verify"\nvalue = 0.0\n',
+        encoding="utf-8",
+    )
+    container = make_app_container(settings(pack_roots=[tmp_path]))
     try:
-        history = container.get(RateSource).history(RateKey.of("vat", base="consumption"))
-        assert history.on(date(2026, 1, 1), allow_to_verify=True).value == Decimal("0.055")
-    finally:
-        container.close()
-
-
-def test_an_unknown_rate_source_is_an_error() -> None:
-    container = make_app_container(settings("nowhere"))
-    try:
-        with pytest.raises(RegistryError, match="no rate source 'nowhere'"):
-            container.get(RateSource)
+        packs = container.get(PackSource)
+        assert [pack.name for pack in tagged(packs.catalog(), purpose="research")] == ["flat-vat"]
+        vat = packs.rates("flat-vat").history(RateKey.of("vat", base="consumption"))
+        assert vat.on(date(2026, 1, 1), allow_to_verify=True).value == 0
     finally:
         container.close()

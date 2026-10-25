@@ -31,7 +31,6 @@ from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from datetime import date
 from decimal import Decimal
-from importlib.resources import files
 from importlib.resources.abc import Traversable
 from itertools import pairwise
 from typing import Literal, Self
@@ -220,9 +219,3 @@ class TomlRateSource:
             hint = f"; known for {key.component}: {', '.join(same)}" if same else ""
             msg = f"no rate {key}{hint}"
             raise UnknownRateError(msg) from None
-
-
-def packaged_rate_files() -> list[Traversable]:
-    """The rate tables shipped with the package."""
-    folder = files("myenergy.adapters.rates") / "data"
-    return [entry for entry in folder.iterdir() if entry.name.endswith(".toml")]
