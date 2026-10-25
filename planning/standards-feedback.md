@@ -14,6 +14,25 @@ becomes an issue on the template repository; never weaken a rule locally instead
 
 -->
 
+## 2026-10-25 — LAY-7: `copier update` leaves conflict markers in `uv.lock`
+
+- **Context:** updating to v0.4.2.
+- **Problem:** the post-render task `uv lock` also runs during updates, so both template renders
+  carry a lockfile and their diff conflicts with the project's; the `check-toml` and `uv-lock`
+  hooks caught the broken file before it was committed.
+- **Proposal:** run `uv lock` only on `copier copy`; after an update, the `uv-lock` hook tells the
+  developer to re-lock, which is one command.
+- **Status:** open
+
+## 2026-10-25 — DOC-3: the generated API reference only showed the package docstring
+
+- **Context:** the user noticed that the published reference page was empty after M1 added modules.
+- **Problem:** mkdocstrings rendered `::: myenergy` without `show_submodules`; the strict build
+  passed, so no gate noticed.
+- **Proposal:** show submodules, and make the template's smoke job check that a submodule's
+  function appears in the built reference.
+- **Status:** filed https://github.com/wghami/python-project-standards/issues/16, resolved in v0.4.2
+
 ## 2026-10-25 — missing rule: a git-ignored place for personal data
 
 - **Context:** the user provided a real electricity bill as a test reference; it must never reach

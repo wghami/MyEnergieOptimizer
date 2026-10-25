@@ -41,8 +41,14 @@ plugins:
         python:
           paths: [src]
           options:
-            show_source: false
             docstring_style: google
+            show_source: false
+            show_submodules: true # the reference covers every module, not only __init__ (DOC-3)
+            show_root_heading: true
+            members_order: source
+            filters: ["!^_"]
+            separate_signature: true
+            show_signature_annotations: true
 
 markdown_extensions:
   - admonition
