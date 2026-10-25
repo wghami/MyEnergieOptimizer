@@ -115,7 +115,7 @@ repos:
         stages: [pre-push]
       - id: docs-build
         name: docs build (strict)
-        entry: uv run --frozen mkdocs build --strict --quiet
+        entry: uv run --frozen mkdocs build --strict  # never --quiet: it hides the warnings --strict counts
         language: system
         pass_filenames: false
         always_run: true

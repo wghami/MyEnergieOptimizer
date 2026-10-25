@@ -43,7 +43,7 @@ uv run pre-commit install
 | `tests` | All suites except `perf`, 100 % line and branch coverage (COV-1) |
 | `docstrings` | 100 % docstring coverage of the public API (DOC-1) |
 | `bandit` | Security lint at medium severity and above; low-severity patterns are already ruff `S` rules with reasoned `noqa` (SEC-4, SEC-9) |
-| `docs-build` | Strict docs build (DOC-4) |
+| `docs-build` | Strict docs build (DOC-4); never with `--quiet`, which hides the warnings `--strict` counts |
 | `doc-impact` | Docs changed together with what they describe (DOC-5); compares with `STANDARDS_BASE_REF` or `origin/main` |
 | `version-tag` | Version from tags; latest tag published (VER-1, VER-3) |
 | `standards-docs` | Standards consistent with the tooling (DOC-6) |

@@ -10,7 +10,7 @@
 │   └── standards-feedback.md # friction with the generic standards, to file upstream (STD-7)
 ├── docs/                     # published documentation (mkdocs-material)
 │   ├── standards/            # these binding rules (from the template)
-│   │   └── project/          # project-specific rules (owned by the project)
+│   │   └── project/          # project rules (owned by the project; linked from its README, not the nav)
 │   ├── reference.md          # API reference, generated from docstrings at build time
 │   └── …                     # guides, architecture
 ├── src/<package>/            # the package

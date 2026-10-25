@@ -26,8 +26,21 @@ jobs:
           persist-credentials: false
       - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
       - run: uv sync
-      - run: uv run mutmut run --max-children 4 || true # the score below is the gate
-      - run: uv run mutmut export-cicd-stats
+      - name: Run mutmut (the score below is the gate)
+        run: |
+          set +e
+          uv run mutmut run --max-children 4 2>&1 | tee mutmut.log
+          set -e
+          uv run mutmut export-cicd-stats
+          if [ ! -f mutants/mutmut-cicd-stats.json ]; then
+            if grep -q "could not find any test case for any mutant" mutmut.log; then
+              # With 100 % coverage this only happens when there is no function to mutate yet.
+              mkdir -p mutants && echo '{"total": 0}' > mutants/mutmut-cicd-stats.json
+            else
+              echo "::error::mutmut produced no statistics; see its output above"
+              exit 1
+            fi
+          fi
       - name: Publish the measured score, pass or fail (CI-10)
         if: github.event_name != 'pull_request'
         run: |
@@ -49,10 +62,11 @@ jobs:
           persist-credentials: false
       - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
       - run: uv sync
-      - name: Run perf-marked tests (none yet is a pass)
+      - name: Run the performance budgets (none yet is a pass)
         run: |
+          if [ ! -d tests/perf ]; then echo "No performance budgets yet (TST-11)."; exit 0; fi
           set +e
-          uv run pytest -m perf -p no:randomly --benchmark-only -o addopts="--disable-socket"
+          uv run pytest tests/perf -m perf -p no:randomly --benchmark-only
           status=$?
           if [ "${status}" = "5" ]; then exit 0; fi
           exit "${status}"

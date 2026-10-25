@@ -16,7 +16,7 @@
 | CI-4 | Releases are automatic: on every green push to `main` the release job tags, builds and publishes ([02](02-commits-and-versioning.md#release-flow-automatic-on-every-merge-to-main)). | `ci.yml` `release` job |
 | CI-5 | Jobs declare least-privilege `permissions:`, do not persist credentials, and pin actions by SHA. | `zizmor`, `actionlint` hooks |
 | CI-6 | A tag is never deleted or moved. A broken release is fixed forward with a new `fix` commit. | `standards check-version` (a moved tag fails), review |
-| CI-7 | While a `release-blocker` issue is open, the release job refuses to release. | `ci.yml` `release` job |
+| CI-7 | While a `release-blocker` issue is open, the release job refuses to release. It only checks when there is something to release, so a push that releases nothing stays green. | `ci.yml` `release` job |
 | CI-8 | The Python version comes from `.python-version`; only that version is tested. | `setup-uv` |
 | CI-9 | PR CI completes in ≤ 10 minutes; slower suites move to `nightly.yml` with an equivalent gate. | review |
 | CI-10 | Measured badges come from the gates' own reports: coverage (`coverage.xml`) and docstrings (interrogate) on every push to `main`, mutation score every night, pass **or** fail. They are written by `standards badge` and published to the `badges` branch, never to `main`. | `ci.yml` `badges` job, `nightly.yml`, `.github/scripts/publish-badges.sh` |

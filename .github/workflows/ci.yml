@@ -151,15 +151,6 @@ jobs:
           persist-credentials: false
       - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
       - run: uv sync
-      - name: Refuse to release while a release-blocker issue is open (CI-7)
-        run: |
-          open=$(gh issue list --label release-blocker --state open --json number --jq length)
-          if [ "${open}" != "0" ]; then
-            echo "::error::${open} open release-blocker issue(s); fix them first."
-            exit 1
-          fi
-        env:
-          GH_TOKEN: ${{ github.token }}
       - name: Compute the next version from commits
         id: next
         run: |
@@ -174,6 +165,16 @@ jobs:
           else
             echo "::error::cz bump --get-next failed (${status})"; exit "${status}"
           fi
+      - name: Refuse to release while a release-blocker issue is open (CI-7)
+        if: steps.next.outputs.version
+        run: |
+          open=$(gh issue list --label release-blocker --state open --json number --jq length)
+          if [ "${open}" != "0" ]; then
+            echo "::error::${open} open release-blocker issue(s); fix them first."
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
       - name: Tag and push
         if: steps.next.outputs.version
         run: |
