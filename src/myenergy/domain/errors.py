@@ -39,3 +39,7 @@ class UnknownRateError(RateError):
 
 class UnverifiedRateError(RateError):
     """A ``to-verify`` rate was requested where only official rates are allowed."""
+
+
+class ContractError(DomainError):
+    """A supply contract, or its off-peak hours, breaks a tariff rule."""
