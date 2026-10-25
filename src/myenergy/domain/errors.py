@@ -19,3 +19,11 @@ class SeriesError(DomainError):
 
 class CoverageError(DomainError):
     """A requested period lies outside the data that would have to cover it."""
+
+
+class UnknownProfileError(DomainError):
+    """A profile reference names a source or a key that does not exist."""
+
+
+class CalibrationError(DomainError):
+    """A profile cannot be scaled as requested (e.g. a window with no energy)."""
