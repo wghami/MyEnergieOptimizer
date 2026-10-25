@@ -16,6 +16,8 @@ production). The window contains the switch from 30-minute to 15-minute values o
 
 `PRD3_BASE` holds solar coefficients of about 4 between 2024-10-04 22:00 and 24:00 UTC (00:00 to
 02:00 in Paris), exactly at the resolution switch. They match the same day's midday values, which
-suggests a 12-hour shift in the stored rows (in the fetcher or in the published data; to be
-checked). It is the only night with solar values above 0.5 in the whole 2021–2026 file. The reader
-does not repair it; notebook 03 shows and explains it.
+suggests a 12-hour shift. **It is in Enedis's published data**: the records API returns the same
+values (checked on 2026-10-25, `coefficient_ajuste` and `coefficient_prepare`), while
+`coefficient_dynamique` stays near zero over those hours; the user's fetcher reproduces the source
+faithfully. It is the only night with solar values above 0.5 in the whole 2021–2026 file. The
+reader does not repair it; notebook 03 shows and explains it.
