@@ -40,20 +40,25 @@ Guiding principles:
 All types are immutable: `@dataclass(frozen=True, slots=True)`. Energy is in **kWh per step**,
 power in **kW**, money in **EUR**. NewTypes or units keep these from being mixed up.
 
-- **`TimeGrid`**: `start`, `end`, `dt` (a `timedelta` that divides the period evenly), `tz`
-  (default `Europe/Paris`). Timestamps are stored in UTC and are aware of daylight saving time. It
-  provides the step index ↔ timestamp mapping.
-- **`TimeSeries`**: values aligned on a `TimeGrid` and backed by a numpy array, with a `kind`
-  (energy or power, which decides how resampling works). It is immutable.
+- **`TimeGrid`**: half-open `[start, end)` in UTC, a `step` that divides 60 minutes (5, 10, 15,
+  20, 30 or 60 min), and a `timezone` (default `Europe/Paris`) used only for wall-clock logic
+  (seasons, peak/off-peak hours). It provides the step index ↔ timestamp mapping. Daylight-saving
+  days have 23 or 25 local hours and need no special case.
+- **`TimeSeries`**: a read-only numpy array on a `TimeGrid`, tagged with a **quantity**:
+  `POWER_KW` (average power over the step, the internal form of profiles), `ENERGY_KWH`,
+  `PRICE_EUR_PER_KWH` or `DIMENSIONLESS`. Arithmetic is only allowed between compatible series on
+  the same grid. **Resampling** uses one overlap-weighted method for any pair of steps:
+  time-weighted means for power, price and shapes; sums and proportional splits for energy.
 - **Assets** (`Asset` protocol: `id`, `kind`, `site_id`):
   - `Consumer(id, load: ProfileRef, priority_class?)`
   - `PVArray(id, production: ProfileRef)`
   - `Battery(id, capacity_kwh, p_charge_max_kw, p_discharge_max_kw, eta_charge, eta_discharge, soc_min, soc_max, soc_initial)`
-  - `GridConnection(id, import_tariff: Tariff, export_tariff: Tariff)`
+  - `GridConnection(id, contract, import_prices: PriceBook, export_prices: PriceBook)`
 - **`Site`**: a group of assets behind one meter. **`Topology`**: sites plus (later) shared assets
   and an allocation key. v1 = `Topology(sites=[one_site])`.
-- **`Tariff`** protocol: `price(step) -> EUR/kWh`. Implementations: `FlatTariff`,
-  `TimeOfUseTariff` (weekday/hour schedule, e.g. HP/HC), `SeriesTariff` (any `TimeSeries`).
+- **Prices and bills** (M2, see §3.1 and `research/french-household-electricity-bill.md`): a
+  **price book** of dated components (supply, network, CTA, excise, VAT…), charged **per energy
+  flow** (grid import, self-consumption, collective sharing, export).
 - **`SystemState`**: the state of each battery (SoC) plus anything a policy remembers. It moves
   forward only through `state.advance(flows)`.
 - **`Decision`**: the *policy* for one step, not kWh setpoints (see §5). It contains:
@@ -74,6 +79,31 @@ power in **kW**, money in **EUR**. NewTypes or units keep these from being mixed
 - No flow is negative.
 - No simultaneous import and export at the same meter.
 - Battery power limits are respected.
+
+### 3.1 Prices and bills (M2)
+
+- **Rate tables are dated data**, versioned in the repository: every value has a source, an
+  effective period and a status (`official` or `to verify`). A `to verify` value cannot be used in a
+  simulation. French household tables (TURPE 7 ≤ 36 kVA, CTA, excise, VAT) come first; companies
+  later, as more data and components in the same structure.
+- **Contract**: subscribed power (kVA), tariff option, network option (FTA, e.g. CU4), status
+  (consumer, collective participant, producer with injection), the connection's peak/off-peak
+  hours. Fixed charges depend on it.
+- **Price book**: components, each with a layer (supply, network, CTA, excise, VAT, levy), a payee,
+  a basis (`per_kwh` flat / time-of-use / series, `per_period` fixed, `tiered_per_kwh` by
+  accumulated consumption in a declared period, `percent_of` named lines), the flows it applies to,
+  and values that may depend on the contract (`by_power_kva`) and on dates. Users write price books
+  in TOML, validated at the boundary.
+- **Energy flows** are what get charged: grid import, on-site self-consumption, energy received
+  from a collective operation (*autoproduite*), export to the grid. The same kWh has different
+  values on each.
+- **One model, two directions:**
+  - *forward*: price book + flows → an **itemised bill** (lines by layer, payee, flow and period)
+    and the **marginal value of a kWh per flow and step**, which the rules and the optimisation use;
+  - *inverse*: a real bill (total incl. VAT, kWh per period, kVA, option, dates) → every regulated
+    layer from the official rates, and the **remainder is the supply part**. It explains a user's
+    bill, calibrates their supply price, and checks the rate tables: an implausible remainder is
+    reported.
 
 ## 4. Simulation engine (`engine/`)
 
@@ -154,21 +184,33 @@ A policy with uncovered situations is rejected before simulation.
 
 ## 6. Data: profiles, tariffs, forecasts (`adapters/`)
 
-**`ProfileSource` port:** `list() -> [ProfileMeta]`, `load(ref, grid) -> TimeSeries`.
+**`ProfileSource` port:** `catalog() -> [ProfileMeta]` (reference, kind, native resolution,
+coverage, timestamp label) and `shape(ref, grid) -> TimeSeries` (dimensionless, mean ≈ 1).
 
-- `EnedisParquetSource`: reads `/home/wghami/Documents/GroundWorkTesting/enedis_db/*.parquet`.
-  - The path is configurable. The columns used are `timestamp` (UTC) and `coefficient_ajuste`.
-  - Enedis coefficients have no unit. They are **scaled** to the asset: `kWh_t = coef_t ×
-    annual_kWh / Σ coef(reference year)` for consumers, and the same for PV using annual yield
-    (kWp × specific yield).
-  - The data mixes **30-minute and 15-minute** resolutions, which the resampler handles.
+- **Profile specs**: `Shaped(shape_ref, scaling)` (M1) or `Computed(source, params)` (later: PVGIS,
+  NASA POWER from a `PVSite(lat, lon, tilt, azimuth, peak_kwp, losses)`). Both yield a kW series
+  through the same interface.
+- **Scaling turns a shape into kW with one constant factor**, so any simulation period and any
+  step work:
+  - `Nominal(annual_kwh)` (default): factor = annual_kWh / 8760 h. Year-to-year variation in the
+    data (±5 % for PV) is kept, as in reality.
+  - `Calibrated(energy_kwh, window)`: factor = energy ÷ ∫shape over the window, which can be any
+    period (a billing year starting in October, a month, a week).
+  - `PVSystem(peak_kwp, specific_yield_kwh_per_kwp)` → an annual energy, until a PV API computes
+    production directly.
+- **Nothing passes silently**: a period (or a calibration window) the data does not cover is an
+  error. Each source declares `timestamp_label = "start" | "end"` (Enedis: `start`); an explicit
+  `time_shift` on a profile reference allows a deliberate shift.
+- `EnedisParquetSource`: reads the configured folder (`ENEDIS_DB_PATH`) with pyarrow. Column
+  `timestamp` (UTC) and, by default, `coefficient_ajuste` (configurable). The data mixes
+  **30-minute (until 2024-10-04 22:00 UTC) and 15-minute** resolutions; the resampler handles it.
 - `EnedisApiSource` (later): wraps the existing fetcher logic (`api_client.py`) behind the same
   port.
 - `CsvSource` (upload) and `SyntheticSource` (deterministic, seeded; used in tests).
 - `Resampler`: energy series are summed or split proportionally (energy is conserved); power series
   are averaged or held. The resampler handles daylight-saving changes and refuses gaps unless a fill
   strategy is declared.
-- `TariffSource` uses the same pattern (flat, HP/HC schedule, CSV/series).
+- Prices: see §3.1 (M2).
 - **`Forecaster` port:** `NoForecast` (default), `Persistence` (same time yesterday or last week),
   `ProfileExpectation` (Enedis coefficient as expectation), `NoisyOracle(sigma)` (for studying the
   value of a better forecast), `PerfectOracle` (benchmarks only).
@@ -249,14 +291,19 @@ tests/  unit/ property/ integration/ api/  contract/ (every adapter passes its p
 ## 10. Milestones
 
 - **M0:** project skeleton, tooling, import-linter contracts, CI script.
-- **M1:** `TimeGrid`, `TimeSeries`, resampler, Enedis/CSV/synthetic profile sources, tariffs.
-- **M2:** physics + baseline policy + simulator + KPIs, with energy-balance property tests.
-- **M3:** rules: vocabulary, `RuleSpec` → ASP compiler, `RulePolicy` via SmartMDAO, pre-run
+- **M1:** time and profiles: `TimeGrid`, `TimeSeries`, resampling, scaling and calibration,
+  Enedis/CSV/synthetic profile sources, first DI container and settings.
+- **M2:** prices and bills: dated rate tables (French households), energy flows, price books,
+  itemised bills, inverse decomposition, marginal value per flow.
+- **M3:** physics + baseline policy + simulator + KPIs, with energy-balance property tests;
+  settlement through M2's bills.
+- **M4:** rules: vocabulary, `RuleSpec` → ASP compiler, `RulePolicy` via SmartMDAO, pre-run
   verifier.
-- **M4:** FastAPI layer, jobs, result export.
-- **M5:** forecasters + forecast-aware rule facts; no-future-leak tests.
-- **M6:** oracle and MPC policies, scenario campaigns (SmartMDAO sweep), community topology.
-- **M7:** GUI (to be discussed).
+- **M5:** FastAPI layer, jobs, result export.
+- **M6:** forecasters + forecast-aware rule facts; no-future-leak tests.
+- **M7:** oracle and MPC policies, scenario campaigns (SmartMDAO sweep), community topology
+  (selling to neighbours); weather-API PV sources.
+- **M8:** GUI (to be discussed).
 
 ## 11. Verification strategy
 
@@ -283,3 +330,23 @@ tests/  unit/ property/ integration/ api/  contract/ (every adapter passes its p
    turns irradiance into a production `ProfileSource`.
 5. Persistence in v1: in-memory / files.
 6. Package name: `myenergy`.
+
+Agreed 2026-10-25:
+
+7. Profile scaling is `Nominal` (annual kWh / 8760 h) by default, with `Calibrated(energy, window)`
+   for any window, including billing years that do not start in January and periods shorter than
+   a year.
+8. Time steps divide 60 minutes (5, 10, 15, 20, 30, 60 min).
+9. Periods outside the data are an **error**; nothing passes silently.
+10. Enedis timestamps mark the **start** of the interval; an explicit `time_shift` option exists.
+11. Default Enedis column: `coefficient_ajuste` (configurable).
+12. PV is specified simply in M1 (kWp × specific yield, or annual kWh) behind a profile spec that a
+    PVGIS / NASA POWER provider will fill later.
+13. Pricing is a model of its own (M2): dated official rate tables, price books per energy flow,
+    forward itemised bills and inverse bill decomposition. Households first; companies later.
+14. Official rates are versioned as data with source, effective period and status; a scheduled
+    check reminds when a February/August change is due and not entered; `to verify` values are
+    unusable in simulations.
+15. VAT on sales within a collective operation and income tax on household sales are **open
+    questions** (`research/french-household-electricity-bill.md` §7), to settle before modelling
+    sales to neighbours (M7).
