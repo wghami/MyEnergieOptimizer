@@ -12,6 +12,7 @@ permissions: {}
 
 jobs:
   analyze:
+    name: CodeQL (Python, Actions)
     runs-on: ubuntu-latest
     permissions:
       contents: read

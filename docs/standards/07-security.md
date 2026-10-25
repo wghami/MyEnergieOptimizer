@@ -24,3 +24,4 @@ Generic rules. Each project adds its own threat model to `docs/standards/project
 | SEC-10 | Releases ship an SBOM and build provenance. | release job (VER-5) |
 | SEC-11 | GitHub Actions are pinned by commit SHA, with least-privilege `permissions:` per job and no persisted credentials. | `zizmor` and `actionlint` hooks |
 | SEC-12 | Vulnerabilities are reported privately (`SECURITY.md`). | repository file |
+| SEC-13 | Supply-chain posture is measured independently by the OpenSSF Scorecard and shown as a badge (CI-11). | `scorecard.yml` |

@@ -10,6 +10,10 @@ max_header_length = 72
 allowed = ["main"]
 extra_prefixes = ["dependabot/"]
 
+[readme]
+# Generated README blocks (DOC-10): `standards readme --write` refreshes them.
+repository = "wghami/MyEnergieOptimizer"
+
 [doc_impact]
 # A change to a watched path must come with a change to the docs its rule names (DOC-6),
 # or carry a `Docs-Reviewed: <why>` footer. Watched paths without a rule fail the check.
@@ -22,6 +26,7 @@ watched = [
     ".pre-commit-config.yaml",
     ".github/workflows/**",
     "mkdocs.yml",
+    ".github/scripts/**",
 ]
 
 [[doc_impact.rules]]
@@ -45,7 +50,7 @@ paths = [".importlinter"]
 docs = ["docs/standards/04-architecture.md", "docs/standards/project/**"]
 
 [[doc_impact.rules]]
-paths = [".github/workflows/**"]
+paths = [".github/workflows/**", ".github/scripts/**"]
 docs = ["docs/standards/09-ci-cd.md"]
 
 [[doc_impact.rules]]

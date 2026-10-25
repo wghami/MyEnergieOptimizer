@@ -12,3 +12,4 @@ Scope and design: [SPEC.md](SPEC.md). Each milestone has a file in `milestones/`
 | M5 | Forecasters and forecast-aware rule facts; no-future-leak tests | planned |
 | M6 | Oracle and MPC policies, scenario campaigns, energy-community topology; weather-API PV sources | planned |
 | M7 | GUI (to be discussed) | planned |
+| — | OpenSSF Best Practices badge (self-certification on bestpractices.dev; badge added once earned) | planned |

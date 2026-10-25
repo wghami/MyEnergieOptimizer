@@ -141,6 +141,13 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [pre-push]
+      - id: readme
+        name: README badges and gates table up to date
+        entry: uv run --frozen standards readme --write
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
       - id: hook-parity
         name: every hook stage runs in CI
         entry: uv run --frozen standards check-hook-parity
