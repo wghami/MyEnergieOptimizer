@@ -23,7 +23,8 @@ becomes an issue on the template repository; never weaken a rule locally instead
 - **Proposal:** the template's `.gitignore` ignores `private/`; a rule (e.g. SEC-14) says personal
   data lives only there; tests that need it are skipped when it is absent, and CI uses synthetic
   equivalents with the same structure.
-- **Status:** open (applied locally in `.gitignore` meanwhile)
+- **Status:** filed https://github.com/wghami/python-project-standards/issues/14 (with the
+  mkdocs-jupyter `.cache/` folder), resolved in v0.4.1 as SEC-14
 
 ## 2026-10-25 — COM-4: a breaking PR title can never pass `check-pr-title`
 

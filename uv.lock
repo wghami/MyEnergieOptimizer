@@ -1202,7 +1202,7 @@ dev = [
     { name = "nbmake", specifier = ">=1.5.5" },
     { name = "pip-audit", specifier = ">=2.10.1" },
     { name = "pre-commit", specifier = ">=4.7.0" },
-    { name = "project-standards", git = "https://github.com/wghami/python-project-standards?rev=a68519109601eb55b2c625dd2b1ba7652b754381" },
+    { name = "project-standards", git = "https://github.com/wghami/python-project-standards?rev=57f966adfb54987f4264d51c8824659939d7c28d" },
     { name = "pyright", extras = ["nodejs"], specifier = ">=1.1.414" },
     { name = "pytest", specifier = ">=9.1.1" },
     { name = "pytest-benchmark", specifier = ">=5.3.0" },
@@ -1501,8 +1501,8 @@ wheels = [
 
 [[package]]
 name = "project-standards"
-version = "0.4.0"
-source = { git = "https://github.com/wghami/python-project-standards?rev=a68519109601eb55b2c625dd2b1ba7652b754381#a68519109601eb55b2c625dd2b1ba7652b754381" }
+version = "0.4.1"
+source = { git = "https://github.com/wghami/python-project-standards?rev=57f966adfb54987f4264d51c8824659939d7c28d#57f966adfb54987f4264d51c8824659939d7c28d" }
 dependencies = [
     { name = "pyyaml" },
 ]
