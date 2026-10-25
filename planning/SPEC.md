@@ -84,7 +84,9 @@ power in **kW**, money in **EUR**. NewTypes or units keep these from being mixed
 
 - **Rate tables are dated data**, versioned in the repository: every value has a source, an
   effective period and a status (`official` or `to verify`). A `to verify` value cannot be used in a
-  simulation. French household tables (TURPE 7 ≤ 36 kVA, CTA, excise, VAT) come first; companies
+  simulation. Rates are read through the `RateSource` port (ADR 0006): packaged TOML now, a
+  database filled by the M9 agent later, both queried by component, date, kVA, option, FTA and
+  status. French household tables (TURPE 7 ≤ 36 kVA, CTA, excise, VAT) come first; companies
   later, as more data and components in the same structure.
 - **Contract**: subscribed power (kVA), tariff option, network option (FTA, e.g. CU4), status
   (consumer, collective participant, producer with injection), the connection's peak/off-peak
