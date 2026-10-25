@@ -145,3 +145,22 @@ def test_isclose() -> None:
     assert not a.isclose(power([1, 2, 3, 4.1]))
     assert not a.isclose(a.energy())
     assert not a.isclose(power([1] * 8, step=timedelta(minutes=30)))
+
+
+def test_integer_input_becomes_float_and_messages_are_exact() -> None:
+    series = TimeSeries(grid=grid(), values=np.array([1, 2, 3, 4]), quantity=Quantity.POWER_KW)
+    assert series.values.dtype == np.float64
+    with pytest.raises(SeriesError) as error:
+        TimeSeries(grid=grid(), values=np.array([1.0, np.nan, 1, 1]), quantity=Quantity.POWER_KW)
+    assert str(error.value) == "a series holds only finite numbers (no NaN or infinity)"
+    with pytest.raises(SeriesError) as error:
+        series.energy().time_mean()
+    assert str(error.value) == "time_mean() is for rates and shapes; use total() for energy"
+
+
+def test_isclose_uses_both_tolerances() -> None:
+    big = power([1000.0, 1000.0, 1000.0, 1000.0])
+    assert big.isclose(power([1000.5, 1000.0, 1000.0, 1000.0]), rel=1e-3, abs_=0.0)
+    assert not big.isclose(power([1000.5, 1000.0, 1000.0, 1000.0]), rel=1e-6, abs_=0.0)
+    small = power([0.0, 0.0, 0.0, 0.0])
+    assert small.isclose(power([1e-3, 0.0, 0.0, 0.0]), rel=0.0, abs_=1e-2)

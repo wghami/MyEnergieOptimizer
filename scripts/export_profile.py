@@ -9,7 +9,6 @@ For: anyone who wants to look at a profile in a spreadsheet or plot it elsewhere
 
 import argparse
 import csv
-import os
 import sys
 from collections.abc import Sequence
 from datetime import datetime, timedelta
@@ -18,6 +17,7 @@ from pathlib import Path
 from myenergy.adapters.profiles.csv_files import CsvProfile, CsvProfileSource, CsvUnit
 from myenergy.adapters.profiles.enedis import EnedisParquetSource
 from myenergy.adapters.profiles.synthetic import SyntheticProfileSource
+from myenergy.bootstrap.settings import Settings
 from myenergy.domain.errors import MyEnergyError
 from myenergy.domain.profiles import (
     AsMeasured,
@@ -40,7 +40,11 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=DESCRIPTION)
     parser.add_argument("--source", choices=["enedis", "synthetic", "csv"], required=True)
     parser.add_argument("--key", help="profile key in the source (not needed for --source csv)")
-    parser.add_argument("--enedis-root", type=Path, help="Enedis folder (default: $ENEDIS_DB_PATH)")
+    parser.add_argument(
+        "--enedis-root",
+        type=Path,
+        help="Enedis folder (default: from settings, e.g. $ENEDIS_DB_PATH)",
+    )
     parser.add_argument("--csv", type=Path, help="CSV file with timestamp,value")
     parser.add_argument("--csv-unit", choices=[u.value for u in CsvUnit], default=CsvUnit.KW.value)
     scaling = parser.add_mutually_exclusive_group(required=True)
@@ -63,9 +67,8 @@ def _source(args: argparse.Namespace) -> tuple[ProfileSource, str]:
     if args.source == "synthetic":
         return SyntheticProfileSource(), args.key
     if args.source == "enedis":
-        root = args.enedis_root or Path(
-            os.environ.get("ENEDIS_DB_PATH", "ENEDIS_DB_PATH is not set")
-        )
+        configured = Settings().options("enedis").get("root", "<no Enedis folder configured>")
+        root = args.enedis_root or Path(configured)
         return EnedisParquetSource(root), args.key
     profile = CsvProfile(
         key="csv", path=args.csv, kind=ProfileKind.CONSUMPTION, unit=CsvUnit(args.csv_unit)

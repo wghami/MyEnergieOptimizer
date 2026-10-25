@@ -14,6 +14,17 @@ becomes an issue on the template repository; never weaken a rule locally instead
 
 -->
 
+## 2026-10-25 — TST-12: two test files with the same name silently drop tests
+
+- **Context:** M1 added `tests/golden/test_profiles.py` next to `tests/unit/domain/test_profiles.py`.
+- **Problem:** pytest's default import mode cannot load two test modules with the same basename;
+  under mutmut the whole module failed to collect, so its tests never ran against any mutant and
+  the score fell from 96 % to 86 % with no error in the gate.
+- **Proposal:** use `--import-mode=importlib` in the template's pytest configuration, and/or a
+  check that refuses duplicate test basenames; make `mutmut` fail the gate when test collection
+  fails.
+- **Status:** open (the file was renamed here)
+
 ## 2026-10-25 — LAY-7: `copier update` leaves conflict markers in `uv.lock`
 
 - **Context:** updating to v0.4.2.

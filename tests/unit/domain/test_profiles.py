@@ -78,3 +78,23 @@ def test_calibration_divides_by_the_shape_energy() -> None:
 def test_scalings_need_positive_values(build: object, message: str) -> None:
     with pytest.raises(CalibrationError, match=message):
         build()  # pyright: ignore[reportCallIssue]  # each case is a zero-argument lambda
+
+
+def test_exact_messages() -> None:
+    with pytest.raises(UnknownProfileError) as error:
+        ProfileRef(source="", key="RES1_BASE")
+    assert str(error.value) == "a profile reference needs a source and a key, got ''/'RES1_BASE'"
+    with pytest.raises(CalibrationError) as error:
+        Calibrated(energy_kwh=0, window=DAY)
+    assert str(error.value) == "energy_kwh must be positive, got 0"
+    for build, name in (
+        (lambda: PVSystem(peak_kwp=0, specific_yield_kwh_per_kwp=1), "peak_kwp"),
+        (lambda: PVSystem(peak_kwp=1, specific_yield_kwh_per_kwp=0), "specific_yield_kwh_per_kwp"),
+    ):
+        with pytest.raises(CalibrationError) as error:
+            build()
+        assert str(error.value) == f"{name} must be positive, got 0"
+
+
+def test_calibration_accepts_small_positive_energies() -> None:
+    assert Calibrated(energy_kwh=1, window=DAY).kw_per_unit(shape_unit_hours=0.5) == 2.0
