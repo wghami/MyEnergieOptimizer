@@ -17,4 +17,5 @@ DOC-12) and, where useful, **scripts** for specific or advanced uses (DOC-13). F
 | M6 | Forecasters and forecast-aware rule facts; no-future-leak tests | planned |
 | M7 | Oracle and MPC policies, scenario campaigns, energy-community topology and sales to neighbours; weather-API PV sources | planned |
 | M8 | GUI (to be discussed) | planned |
+| M9 | **Billing-data agent**, after the final code validation: an agent that fetches official prices and everything billing needs (TURPE grids, CTA, excise, VAT, regulated tariffs, feed-in prices), proposes rate-table updates with their source documents and effective dates, and leaves them `to verify` until a human confirms (SPEC decision 14) | planned (requested 2026-10-25) |
 | — | OpenSSF Best Practices badge (self-certification on bestpractices.dev; badge added once earned) | planned |
