@@ -9,7 +9,7 @@ DOC-12) and, where useful, **scripts** for specific or advanced uses (DOC-13). F
 | Milestone | Goal | Status |
 |---|---|---|
 | M0 | Repository, tooling and standards in place; first release tagged | done (v0.1.0) |
-| M1 | Time and profiles: `TimeGrid`, `TimeSeries`, resampling, scaling and calibration; Enedis / CSV / synthetic sources; first DI container ([M1](milestones/M1.md)) | in progress |
+| M1 | Time and profiles: `TimeGrid`, `TimeSeries`, resampling, scaling and calibration; Enedis / CSV / synthetic sources; first DI container ([M1](milestones/M1.md)) | done |
 | M2 | Prices and bills: dated rate tables, energy flows, price books, itemised bills, inverse decomposition ([M2](milestones/M2.md)) | planned — **needs a real bill from the user first** |
 | M3 | Physics, baseline policy, simulator, KPIs; energy-balance property tests | planned |
 | M4 | Rules: vocabulary, `RuleSpec` → ASP compiler, sanitiser, `RulePolicy`, pre-run verifier | planned |

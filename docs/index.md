@@ -10,3 +10,4 @@ Simulate a home or energy-community electricity system whose dispatch is decided
 - [Time and series](architecture/time-and-series.md): grids, quantities, resampling that conserves
   energy.
 - [Profiles](architecture/profiles.md): shapes, sources, and the scalings that turn them into kW.
+- [Wiring](architecture/wiring.md): settings, plugins and the dependency-injection container.

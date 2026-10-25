@@ -1,6 +1,6 @@
 """Time grids: half-open UTC ranges of equal, aligned steps (SPEC §3, decision 8)."""
 
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta, timezone, tzinfo
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -124,3 +124,47 @@ def test_with_step() -> None:
         TimeGrid(start=utc(2026, 1, 1, 0, 15), end=utc(2026, 1, 1, 1, 15), step=Q).with_step(
             timedelta(hours=1)
         )
+
+
+class _NoOffset(tzinfo):
+    """A tzinfo that cannot say its offset: as ambiguous as a naive time."""
+
+    def utcoffset(self, dt: datetime | None) -> None:
+        del dt
+
+    def dst(self, dt: datetime | None) -> None:
+        del dt
+
+
+def test_a_tzinfo_without_offset_is_naive() -> None:
+    with pytest.raises(GridError, match="start must be timezone-aware"):
+        TimeGrid(start=datetime(2026, 1, 1, tzinfo=_NoOffset()), end=utc(2026, 1, 2), step=Q)
+
+
+def test_index_edges_and_types() -> None:
+    grid = day()
+    assert grid.index(utc(2026, 1, 1)) == 0
+    assert type(grid.index(utc(2026, 1, 1, 0, 15))) is int
+    assert grid.timestamp(-96) == utc(2026, 1, 1)
+    with pytest.raises(
+        GridError,
+        match=(
+            r"^2026-01-02T00:00:00\+00:00 is outside "
+            r"\[2026-01-01T00:00:00\+00:00, 2026-01-02T00:00:00\+00:00\)$"
+        ),
+    ):
+        grid.index(utc(2026, 1, 2))
+
+
+def test_local_uses_the_grid_timezone() -> None:
+    tokyo = ZoneInfo("Asia/Tokyo")
+    grid = TimeGrid(start=utc(2026, 1, 1), end=utc(2026, 1, 2), step=Q, timezone=tokyo)
+    assert grid.local(0).tzinfo is tokyo
+    assert grid.local(0).hour == 9
+
+
+def test_sub_and_with_step_keep_the_timezone() -> None:
+    tokyo = ZoneInfo("Asia/Tokyo")
+    grid = TimeGrid(start=utc(2026, 1, 1), end=utc(2026, 1, 2), step=Q, timezone=tokyo)
+    assert grid.sub(utc(2026, 1, 1, 6), utc(2026, 1, 1, 12)).timezone is tokyo
+    assert grid.with_step(timedelta(hours=1)).timezone is tokyo

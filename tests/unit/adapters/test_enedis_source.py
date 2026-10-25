@@ -10,6 +10,7 @@ import pytest
 
 from myenergy.adapters.errors import AdapterError, DataFormatError
 from myenergy.adapters.profiles.enedis import NATIVE_STEPS, EnedisParquetSource
+from myenergy.domain.errors import UnknownProfileError
 from myenergy.domain.profiles import ProfileKind, ProfileUnit, TimestampLabel
 from myenergy.domain.time import TimeGrid
 
@@ -142,3 +143,28 @@ def test_data_is_read_once(tmp_path: Path) -> None:
     (tmp_path / "d" / "Residentiel_X.parquet").unlink()
     assert source.catalog() == first
     assert np.isfinite(source.shape("X", first[0].coverage).values).all()
+
+
+def test_a_thirty_minute_only_file_keeps_its_step(tmp_path: Path) -> None:
+    _write(
+        tmp_path / "d",
+        "Residentiel_HALF.parquet",
+        [START, START + 2 * Q, START + 4 * Q],
+        [1.0, 2.0, 3.0],
+    )
+    coverage = EnedisParquetSource(tmp_path / "d").catalog()[0].coverage
+    assert coverage == TimeGrid(start=START, end=START + 6 * Q, step=2 * Q)
+
+
+def test_exact_messages_name_the_source(tmp_path: Path) -> None:
+    _write(tmp_path / "d", "Residentiel_GAP.parquet", [START, START + 5 * Q], [1.0, 1.0])
+    with pytest.raises(DataFormatError) as error:
+        EnedisParquetSource(tmp_path / "d").catalog()
+    assert str(error.value) == (
+        "Residentiel_GAP.parquet: 4500 s between 2024-01-01T00:00:00+00:00 and the next row; "
+        "native steps are 0:15:00, 0:30:00"
+    )
+    source = EnedisParquetSource(FIXTURES, name="mine")
+    with pytest.raises(UnknownProfileError) as unknown:
+        source.shape("NOPE", source.catalog()[0].coverage)
+    assert str(unknown.value) == "source 'mine' has no profile 'NOPE'"

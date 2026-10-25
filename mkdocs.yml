@@ -63,6 +63,7 @@ nav:
   - Architecture:
       - architecture/time-and-series.md
       - architecture/profiles.md
+      - architecture/wiring.md
   - Reference: reference.md
   - Standards:
       - standards/README.md
