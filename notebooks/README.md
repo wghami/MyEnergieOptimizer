@@ -17,4 +17,7 @@ Every notebook (DOC-12):
 
 ## Notebooks
 
-_None yet._
+1. [01 — Time grid](01-time-grid.ipynb): UTC ranges of equal steps, daylight-saving days, and why
+   invalid grids are refused.
+2. [02 — Time series and resampling](02-time-series-and-resampling.ipynb): quantities, power vs
+   energy, and resampling that conserves energy.
