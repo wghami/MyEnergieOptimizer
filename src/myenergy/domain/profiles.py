@@ -9,7 +9,11 @@ profile serves any simulation period and any step (SPEC decision 7):
 - ``Calibrated(energy_kwh, window)``: factor = energy / energy of the shape over ``window``, which
   may be any period (a billing year starting in November, a month, a week);
 - ``PVSystem(peak_kwp, specific_yield_kwh_per_kwp)``: a nominal annual energy, until a PV API
-  computes production directly.
+  computes production directly;
+- ``AsMeasured()``: the source holds kW already (factor 1).
+
+Shapes take ``Nominal``, ``PVSystem`` or ``Calibrated``; measured kW takes ``AsMeasured`` or
+``Calibrated``. Any other pairing is refused, never guessed.
 """
 
 from dataclasses import dataclass
@@ -28,6 +32,13 @@ class ProfileKind(StrEnum):
 
     CONSUMPTION = "consumption"
     PRODUCTION = "production"
+
+
+class ProfileUnit(StrEnum):
+    """What a source's values are: a dimensionless shape to scale, or measured power."""
+
+    SHAPE = "1"
+    KW = "kW"
 
 
 class TimestampLabel(StrEnum):
@@ -69,6 +80,7 @@ class ProfileMeta:
     """The period the data covers, on its finest native step."""
     label: TimestampLabel
     description: str
+    unit: ProfileUnit = ProfileUnit.SHAPE
 
 
 def _positive(value: float, name: str) -> None:
@@ -147,7 +159,16 @@ class PVSystem:
         return Nominal(annual_kwh=self.peak_kwp * self.specific_yield_kwh_per_kwp)
 
 
-type Scaling = Nominal | Calibrated | PVSystem
+@dataclass(frozen=True, slots=True, kw_only=True)
+class AsMeasured:
+    """The source already holds kW (measured data, e.g. a meter export): factor 1."""
+
+    def kw_per_unit(self) -> float:
+        """Kilowatts per unit: the values are kW already."""
+        return 1.0
+
+
+type Scaling = Nominal | Calibrated | PVSystem | AsMeasured
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

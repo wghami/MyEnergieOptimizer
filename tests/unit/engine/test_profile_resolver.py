@@ -8,11 +8,13 @@ import pytest
 from myenergy.adapters.profiles.memory import InMemoryProfileSource
 from myenergy.domain.errors import CalibrationError, GridError, UnknownProfileError
 from myenergy.domain.profiles import (
+    AsMeasured,
     Calibrated,
     Nominal,
     ProfileKind,
     ProfileMeta,
     ProfileRef,
+    ProfileUnit,
     PVSystem,
     Shaped,
     TimestampLabel,
@@ -99,3 +101,43 @@ def test_sources_are_registered_under_their_own_name() -> None:
         UnknownProfileError, match="source registered as 'other' calls itself 'mem'"
     ):
         ProfileResolver({"other": source})
+
+
+def _kw_resolver() -> ProfileResolver:
+    meta = ProfileMeta(
+        key="meter",
+        kind=ProfileKind.CONSUMPTION,
+        coverage=NATIVE,
+        label=TimestampLabel.START,
+        description="measured",
+        unit=ProfileUnit.KW,
+    )
+    series = TimeSeries(grid=NATIVE, values=SHAPE, quantity=Quantity.DIMENSIONLESS)
+    return ProfileResolver({"mem": InMemoryProfileSource("mem", {"meter": (meta, series)})})
+
+
+def test_measured_profiles_are_used_as_measured() -> None:
+    meter = ProfileRef(source="mem", key="meter")
+    assert (
+        _kw_resolver().power(Shaped(ref=meter, scaling=AsMeasured()), NATIVE).values.tolist()
+        == SHAPE.tolist()
+    )
+    calibrated = Shaped(ref=meter, scaling=Calibrated(energy_kwh=48, window=NATIVE))
+    assert _kw_resolver().power(calibrated, NATIVE).energy().total() == pytest.approx(48)
+
+
+def test_scalings_must_fit_the_profile_unit() -> None:
+    meter = ProfileRef(source="mem", key="meter")
+    with pytest.raises(
+        CalibrationError, match="Nominal needs a profile in '1', but mem/meter is in 'kW'"
+    ):
+        _kw_resolver().power(Shaped(ref=meter, scaling=Nominal(annual_kwh=1)), NATIVE)
+    with pytest.raises(
+        CalibrationError, match="AsMeasured needs a profile in 'kW', but mem/home is in '1'"
+    ):
+        resolver().power(Shaped(ref=REF, scaling=AsMeasured()), NATIVE)
+
+
+def test_meta_of_an_unknown_key() -> None:
+    with pytest.raises(UnknownProfileError, match="source 'mem' has no profile 'nope'"):
+        resolver().meta(ProfileRef(source="mem", key="nope"))

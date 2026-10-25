@@ -5,18 +5,24 @@ Add a source by adding a factory to ``SOURCES``; nothing else changes.
 
 from collections.abc import Callable, Sequence
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 import numpy as np
 import numpy.typing as npt
 import pytest
 
+from myenergy.adapters.profiles.csv_files import CsvProfile, CsvProfileSource, CsvUnit
+from myenergy.adapters.profiles.enedis import EnedisParquetSource
 from myenergy.adapters.profiles.memory import InMemoryProfileSource
+from myenergy.adapters.profiles.synthetic import SyntheticProfileSource
 from myenergy.domain.errors import CoverageError, UnknownProfileError
 from myenergy.domain.profiles import (
+    AsMeasured,
     Nominal,
     ProfileKind,
     ProfileMeta,
     ProfileRef,
+    ProfileUnit,
     Shaped,
     TimestampLabel,
 )
@@ -70,7 +76,22 @@ class FlatSource:
         return TimeSeries.constant(grid, 1.0, Quantity.DIMENSIONLESS)
 
 
-SOURCES: dict[str, Callable[[], ProfileSource]] = {"memory": _memory, "flat": FlatSource}
+FIXTURES = Path(__file__).parents[1] / "fixtures"
+
+
+def _csv() -> ProfileSource:
+    home = CsvProfile(key="home", path=FIXTURES / "csv" / "home-kw.csv",
+                      kind=ProfileKind.CONSUMPTION, unit=CsvUnit.KW)  # fmt: skip
+    return CsvProfileSource([home])
+
+
+SOURCES: dict[str, Callable[[], ProfileSource]] = {
+    "memory": _memory,
+    "flat": FlatSource,
+    "enedis": lambda: EnedisParquetSource(FIXTURES / "enedis"),
+    "csv": _csv,
+    "synthetic": SyntheticProfileSource,
+}
 
 
 @pytest.fixture(params=sorted(SOURCES))
@@ -89,9 +110,8 @@ def test_catalog_keys_are_unique_and_described(source: ProfileSource) -> None:
 @pytest.mark.parametrize("step", [timedelta(minutes=m) for m in (5, 15, 20, 60)])
 def test_shapes_land_exactly_on_the_requested_grid(source: ProfileSource, step: timedelta) -> None:
     for meta in source.catalog():
-        grid = meta.coverage.with_step(step).sub(
-            START + timedelta(hours=6), START + timedelta(hours=30)
-        )
+        begin = meta.coverage.start + timedelta(hours=6)
+        grid = meta.coverage.with_step(step).sub(begin, begin + timedelta(hours=24))
         shape = source.shape(meta.key, grid)
         assert shape.grid == grid
         assert shape.quantity is Quantity.DIMENSIONLESS
@@ -116,9 +136,10 @@ def test_unknown_keys_are_an_error(source: ProfileSource) -> None:
 def test_every_source_plugs_into_the_resolver(source: ProfileSource) -> None:
     resolver = ProfileResolver({source.name: source})
     meta = source.catalog()[0]
+    window = meta.coverage.sub(meta.coverage.start, meta.coverage.start + timedelta(hours=24))
+    scaling = Nominal(annual_kwh=8760) if meta.unit is ProfileUnit.SHAPE else AsMeasured()
     power = resolver.power(
-        Shaped(ref=ProfileRef(source=source.name, key=meta.key), scaling=Nominal(annual_kwh=8760)),
-        meta.coverage,
+        Shaped(ref=ProfileRef(source=source.name, key=meta.key), scaling=scaling), window
     )
     assert power.quantity is Quantity.POWER_KW
-    assert power.isclose(source.shape(meta.key, meta.coverage).scaled(1.0, Quantity.POWER_KW))
+    assert power.isclose(source.shape(meta.key, window).scaled(1.0, Quantity.POWER_KW))

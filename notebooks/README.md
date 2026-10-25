@@ -21,3 +21,5 @@ Every notebook (DOC-12):
    invalid grids are refused.
 2. [02 — Time series and resampling](02-time-series-and-resampling.ipynb): quantities, power vs
    energy, and resampling that conserves energy.
+3. [03 — Load and PV profiles](03-load-and-pv-profiles.ipynb): Enedis shapes across the resolution
+   switch, the scalings that turn shapes into kW, synthetic and measured profiles.
