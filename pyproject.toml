@@ -27,6 +27,10 @@ Documentation = "https://wghami.github.io/MyEnergyOptimizer/"
 enedis = "myenergy.adapters.profiles.plugins:ENEDIS"
 synthetic = "myenergy.adapters.profiles.plugins:SYNTHETIC"
 
+[project.entry-points."myenergy.asset_kinds"]
+consumer = "myenergy.engine.assets:CONSUMER"
+pv = "myenergy.engine.assets:PV"
+
 [dependency-groups]
 dev = [
     "project-standards",

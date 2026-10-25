@@ -6,7 +6,8 @@ Design: ADR 0002 (dishka), MEO-DI-1…4, MEO-PLG-1…4.
 environment / .env ──► Settings ──┐
                                   ├──► AppProvider (dishka, APP scope) ──► Mapping[str, ProfileSource]
 entry points ──► Registry[plugin] ┘                                    ├─► ProfileResolver
-                                                                       └─► PackSource
+                                                                       ├─► PackSource
+                                                                       └─► SiteResolver
 ```
 
 ## Settings (`myenergy.bootstrap.settings`)
@@ -36,13 +37,17 @@ pvgis = "my_package.plugins:PVGIS"
 
 `load_entry_points` checks each one against the `ProfileSourcePlugin` protocol before use.
 
+Asset kinds work the same way through the `myenergy.asset_kinds` group and the `AssetKind`
+protocol ([Sites and energy flows](sites-and-flows.md)).
+
 Tariff packs need no code at all: they are folders of data found in the built-in pack folder and
 in `MYENERGY_PACK_ROOTS` ([Tariff packs](packs.md)).
 
 ## The container (`myenergy.bootstrap`)
 
-`make_app_container(settings=None, plugins=None, rate_plugins=None)` is the **only** place where
+`make_app_container(settings=None, plugins=None, asset_kinds=None)` is the **only** place where
 concrete adapters meet the ports (import contract MEO-ARC-2). It provides `Settings`, the
-configured `Mapping[str, ProfileSource]`, the `ProfileResolver` and the `PackSource`.
+configured `Mapping[str, ProfileSource]`, the `ProfileResolver`, the `PackSource` and the
+`SiteResolver` (with every installed asset kind).
 Tests pass their own settings and plugin registries; nothing is monkey-patched (DI-3). Close the
 container when done.

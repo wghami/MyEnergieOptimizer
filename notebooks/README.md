@@ -28,3 +28,5 @@ Every notebook (DOC-12):
    supply schedules.
 5. [05 — Tariff packs](05-tariff-packs.ipynb): what a pack holds, how a contract is checked, a
    research pack that changes one tax, and a pack for somewhere else.
+6. [06 — Energy flows](06-energy-flows.ipynb): sites as data, flows from asset roles, how the time
+   step changes self-consumption, shared energy, and a new asset kind without code changes.

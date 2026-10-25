@@ -45,6 +45,14 @@ class ContractError(DomainError):
     """A supply contract breaks a tariff rule."""
 
 
+class SiteError(DomainError):
+    """A site description is inconsistent, or names an asset kind that does not exist."""
+
+
+class FlowError(DomainError):
+    """Energy flows break an invariant: negative energy, or more shared than metered."""
+
+
 class UnknownPackError(DomainError):
     """No tariff pack has this name."""
 

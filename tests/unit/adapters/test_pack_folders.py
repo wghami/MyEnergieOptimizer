@@ -47,6 +47,8 @@ def test_the_french_household_pack(packs: TomlPackSource) -> None:
         "supply_option",
     ]
     assert len(pack.checks) == 3
+    assert pack.sharing_step is not None
+    assert pack.sharing_step.total_seconds() == 1800
     assert len(packs.rates("fr-household").catalog()) == 56
     assert packs.schedules("fr-household") == {}
 
@@ -57,6 +59,8 @@ def test_a_pack_inherits_and_overrides(packs: TomlPackSource) -> None:
     assert study.tag("country") == "FR"
     assert study.tag("source") == "hypothetical"
     assert study.checks == ()
+    assert study.sharing_step == packs.pack("fr-household").sharing_step
+    assert packs.pack("day-night").sharing_step is None
     assert next(f for f in study.fields if f.name == "status").values == ("consumer",)
     assert study.network == packs.pack("fr-household").network
     contract = study.contract(

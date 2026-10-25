@@ -54,12 +54,14 @@ power in **kW**, money in **EUR**. NewTypes or units keep these from being mixed
   `PRICE_EUR_PER_KWH` or `DIMENSIONLESS`. Arithmetic is only allowed between compatible series on
   the same grid. **Resampling** uses one overlap-weighted method for any pair of steps:
   time-weighted means for power, price and shapes; sums and proportional splits for energy.
-- **Assets** (`Asset` protocol: `id`, `kind`, `site_id`):
+- **Assets** are data in a site file, by kind; each kind is a plugin with a role (source, sink,
+  storage), registered in `myenergy.asset_kinds` (ADR 0009). First sketch of the kinds:
   - `Consumer(id, load: ProfileRef, priority_class?)`
   - `PVArray(id, production: ProfileRef)`
   - `Battery(id, capacity_kwh, p_charge_max_kw, p_discharge_max_kw, eta_charge, eta_discharge, soc_min, soc_max, soc_initial)`
   - `GridConnection(id, contract, import_prices: PriceBook, export_prices: PriceBook)`
-- **`Site`**: a group of assets behind one meter. **`Topology`**: sites plus (later) shared assets
+- **`Site`**: a group of assets behind one meter, described in TOML with its contract and shares;
+  its meter flows (`SiteFlows`) are what bills charge (ADR 0009). **`Topology`**: sites plus (later) shared assets
   and an allocation key. v1 = `Topology(sites=[one_site])`.
 - **Prices and bills** (M2, see §3.1 and `research/french-household-electricity-bill.md`): a
   **price book** of dated components (supply, network, CTA, excise, VAT…), charged **per energy

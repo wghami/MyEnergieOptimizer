@@ -1,8 +1,9 @@
 """Composition root: the only place that wires concrete adapters to ports (ADR 0002, MEO-DI-1).
 
 ``make_app_container()`` builds the APP-scoped container: settings, the configured profile
-sources, the ``ProfileResolver`` and the ``PackSource`` (built-in and user tariff packs). Tests
-pass their own ``Settings`` and plugin registry instead of patching anything (DI-3).
+sources, the ``ProfileResolver``, the ``PackSource`` (built-in and user tariff packs) and the
+``SiteResolver`` (with every installed asset kind). Tests pass their own ``Settings`` and plugin
+registries instead of patching anything (DI-3).
 """
 
 from collections.abc import Mapping
@@ -19,6 +20,8 @@ from myenergy.adapters.packs.toml_files import TomlPackSource, builtin_packs
 from myenergy.bootstrap.registry import Registry, load_entry_points
 from myenergy.bootstrap.settings import Settings
 from myenergy.engine.profiles import ProfileResolver
+from myenergy.engine.sites import SiteResolver
+from myenergy.ports.assets import ASSET_KINDS_GROUP, AssetKind
 from myenergy.ports.packs import PackSource
 from myenergy.ports.plugins import PROFILE_SOURCES_GROUP, ProfileSourcePlugin
 from myenergy.ports.profiles import ProfileSource
@@ -29,8 +32,13 @@ def profile_source_plugins() -> Registry[ProfileSourcePlugin]:
     return load_entry_points(PROFILE_SOURCES_GROUP, "profile source", ProfileSourcePlugin)
 
 
+def asset_kind_plugins() -> Registry[AssetKind]:
+    """Every installed asset kind (built-in or third-party)."""
+    return load_entry_points(ASSET_KINDS_GROUP, "asset kind", AssetKind)
+
+
 class AppProvider(Provider):
-    """APP scope: settings, profile sources, profile resolver, tariff packs."""
+    """APP scope: settings, profile sources and resolver, tariff packs, site resolver."""
 
     scope = Scope.APP
 
@@ -38,11 +46,13 @@ class AppProvider(Provider):
         self,
         settings: Settings,
         plugins: Registry[ProfileSourcePlugin],
+        asset_kinds: Registry[AssetKind],
     ) -> None:
         """Use these settings and these plugins."""
         super().__init__()
         self._settings = settings
         self._plugins = plugins
+        self._asset_kinds = asset_kinds
 
     @provide
     def settings(self) -> Settings:
@@ -73,10 +83,22 @@ class AppProvider(Provider):
         """
         return TomlPackSource([builtin_packs(), *settings.pack_roots])
 
+    @provide
+    def site_resolver(self, profiles: ProfileResolver, packs: PackSource) -> SiteResolver:
+        """Sites resolved with every installed asset kind."""
+        return SiteResolver(dict(self._asset_kinds), profiles, packs)
+
 
 def make_app_container(
     settings: Settings | None = None,
     plugins: Registry[ProfileSourcePlugin] | None = None,
+    asset_kinds: Registry[AssetKind] | None = None,
 ) -> Container:
     """The application container (call ``close()`` when done)."""
-    return make_container(AppProvider(settings or Settings(), plugins or profile_source_plugins()))
+    return make_container(
+        AppProvider(
+            settings or Settings(),
+            plugins or profile_source_plugins(),
+            asset_kinds or asset_kind_plugins(),
+        )
+    )

@@ -22,6 +22,7 @@ my-packs/
 | name, title, tags | `[pack]` | free tags such as `country`, `sector`, `purpose`, `source`; filter with `tagged(packs, country="FR")` |
 | extends | `[pack] extends` | inherit another pack (below) |
 | power limit | `[pack] max_kva` | optional |
+| sharing step | `[pack] sharing_step_minutes` | optional: the step at which sharing schemes allocate energy; flows on another step raise a warning |
 | fields | `[fields.<name>]` | allowed `values`, optional `default` (else required), `description`; fields double as **rate selectors** |
 | checks | `[[checks]]` | `when` fields match → must match `require` and have `off_peak_hours` a day in every season; `level` `error` refuses the contract, `warning` raises a `TariffWarning` and prices it as given |
 | network schedule | `[network]` | seasons with peak/off-peak period names applied to the contract's off-peak hours; or year-round `peak`/`off_peak`; or a fixed `schedule` from `schedules.toml` |
