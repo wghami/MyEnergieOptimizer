@@ -22,7 +22,8 @@ becomes an issue on the template repository; never weaken a rule locally instead
   hooks caught the broken file before it was committed.
 - **Proposal:** run `uv lock` only on `copier copy`; after an update, the `uv-lock` hook tells the
   developer to re-lock, which is one command.
-- **Status:** open
+- **Status:** filed https://github.com/wghami/python-project-standards/issues/18, resolved in v0.4.3
+  (tasks run on the first render only; this one update from v0.4.2 needed `uv.lock` restored)
 
 ## 2026-10-25 — DOC-3: the generated API reference only showed the package docstring
 
