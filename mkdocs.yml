@@ -7,6 +7,7 @@ strict: true
 # so projects never edit this template-managed file for them.
 not_in_nav: |
   /standards/project/
+  /notebooks/*.ipynb
 
 theme:
   name: material
@@ -32,6 +33,9 @@ validation:
 
 plugins:
   - search
+  - mkdocs-jupyter:
+      execute: false # notebooks are committed executed (DOC-12); the hook re-runs them
+      include_source: true
   - mkdocstrings:
       handlers:
         python:
@@ -48,6 +52,8 @@ markdown_extensions:
 
 nav:
   - Home: index.md
+  - Notebooks: notebooks/README.md
+  - Scripts: scripts.md
   - Reference: reference.md
   - Standards:
       - standards/README.md

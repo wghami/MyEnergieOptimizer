@@ -19,6 +19,7 @@ repository = "wghami/MyEnergyOptimizer"
 # or carry a `Docs-Reviewed: <why>` footer. Watched paths without a rule fail the check.
 watched = [
     "src/**",
+    "tools/**",
     "scripts/**",
     "pyproject.toml",
     "standards.toml",
@@ -34,8 +35,12 @@ paths = ["src/**"]
 docs = ["docs/**", "README.md"]
 
 [[doc_impact.rules]]
-paths = ["scripts/**"]
+paths = ["tools/**"]
 docs = ["docs/standards/**"]
+
+[[doc_impact.rules]]
+paths = ["scripts/**"]
+docs = ["scripts/README.md"]
 
 [[doc_impact.rules]]
 paths = ["pyproject.toml"]

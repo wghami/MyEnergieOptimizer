@@ -8,7 +8,7 @@ deliberate bugs.
 
 | ID | Rule | Enforced by |
 |---|---|---|
-| COV-1 | `pytest --cov` with `branch = true` and `fail_under = 100` over the package and `scripts/`. | `tests` hook, CI pre-push stage |
+| COV-1 | `pytest --cov` with `branch = true` and `fail_under = 100` over the package, `tools/` and `scripts/`. | `tests` hook, CI pre-push stage |
 | COV-2 | No inline coverage pragma of any kind, anywhere. | `suppressions` hook (`standards check-suppressions`) |
 | COV-3 | The only exclusions are the `exclude_also` patterns in `pyproject.toml`: `if TYPE_CHECKING:`, `@overload`, bodies that are only `...`, `assert_never(`. Changing the list needs an ADR. | doc-impact rule on `pyproject.toml`, CODEOWNERS review |
 | COV-4 | Coverage is measured on the combined run of every suite except `perf`. | `tests` hook |
@@ -31,6 +31,8 @@ deliberate bugs.
 | TST-11 | `tests/perf/` (`@pytest.mark.perf`) | Time budgets; run nightly and on PRs labelled `perf`. No `tests/perf/` yet is a pass | pytest-benchmark |
 | TST-12 | mutation | Mutation score ≥ the threshold set at render time; nightly, and on PRs labelled `mutation`. Mutants that were never evaluated (a failing baseline run) fail too, so `[tool.mutmut] also_copy` lists every file the tests read. A project with no function to mutate yet has zero mutants, which passes. A failure opens a release blocker | mutmut, `standards check-mutation-score` |
 | TST-13 | `tests/integration/` (e2e) | The deployed shape works end to end (boot, request, result) | pytest |
+| TST-14 | `notebooks/` | Every notebook still runs, top to bottom, in a fresh kernel | nbmake (`notebooks` hook) |
+| TST-15 | `tests/scripts/` | Every script runs on small inputs, through `main()` and as `__main__` | pytest |
 
 A suite only exists once there is something for it to test. The template creates `unit/` and
 `arch/`; the others appear with the first code that needs them.

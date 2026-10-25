@@ -1,1 +1,1 @@
-"""Repository tooling called by hooks and CI; typed and tested like production code (LAY-5)."""
+"""User-facing applications: the second level of interaction with the package (DOC-13)."""
