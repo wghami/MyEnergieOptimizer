@@ -14,7 +14,7 @@ def _clean_environment(monkeypatch: pytest.MonkeyPatch) -> None:
         "MYENERGY_ENEDIS_DB_PATH",
         "MYENERGY_SOURCES__ENEDIS__ROOT",
         "MYENERGY_SOURCES__SYNTHETIC__SEED",
-        "MYENERGY_RATE_SOURCE",
+        "MYENERGY_PACK_ROOTS",
     ):
         monkeypatch.delenv(name, raising=False)
 
@@ -24,12 +24,12 @@ def test_defaults() -> None:
     assert settings.sources == {}
     assert settings.enedis_db_path is None
     assert settings.options("enedis") == {}
-    assert settings.rate_source == "toml"
+    assert settings.pack_roots == []
 
 
-def test_rate_source_from_the_environment(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("MYENERGY_RATE_SOURCE", "database")
-    assert Settings(_env_file=None).rate_source == "database"  # pyright: ignore[reportCallIssue]  # pydantic-settings init option
+def test_pack_roots_from_the_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("MYENERGY_PACK_ROOTS", '["/data/packs", "/research/packs"]')
+    assert Settings(_env_file=None).pack_roots == [Path("/data/packs"), Path("/research/packs")]  # pyright: ignore[reportCallIssue]  # pydantic-settings init option
 
 
 def test_source_options_from_the_environment(monkeypatch: pytest.MonkeyPatch) -> None:

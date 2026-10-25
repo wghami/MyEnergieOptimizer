@@ -24,5 +24,7 @@ Every notebook (DOC-12):
 3. [03 — Load and PV profiles](03-load-and-pv-profiles.ipynb): Enedis shapes across the resolution
    switch, the scalings that turn shapes into kW, synthetic and measured profiles.
 4. [04 — Time-of-use schedules](04-time-of-use-schedules.ipynb): user-defined periods by window,
-   day and season, exact shares per step, daylight-saving days, the network's four classes as one
-   schedule, and a contract's network and supply schedules.
+   day and season, exact shares per step, daylight-saving days, and a contract's network and
+   supply schedules.
+5. [05 — Tariff packs](05-tariff-packs.ipynb): what a pack holds, how a contract is checked, a
+   research pack that changes one tax, and a pack for somewhere else.

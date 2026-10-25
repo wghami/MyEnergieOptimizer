@@ -1,6 +1,6 @@
 # 0006 — Dated rates are read through a port, stored as TOML now and in a database later
 
-Status: accepted
+Status: accepted (storage location amended by ADR 0008: rates belong to tariff packs)
 Date: 2026-10-25
 
 ## Context

@@ -1,0 +1,8 @@
+# A made-up pack for a place with a fixed day/night network tariff and no contract fields.
+[pack]
+name = "day-night"
+title = "Fixed day and night network periods"
+tags = { purpose = "example" }
+
+[network]
+schedule = "day-night"

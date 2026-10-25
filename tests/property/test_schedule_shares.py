@@ -7,11 +7,13 @@ import numpy as np
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
+from myenergy.adapters.packs.toml_files import TomlPackSource, builtin_packs
 from myenergy.domain.schedules import TimeWindow, TimeWindows
 from myenergy.domain.time import ALLOWED_STEPS, TimeGrid
-from myenergy.domain.time_classes import network_schedule
 
 PARIS = ZoneInfo("Europe/Paris")
+FRANCE = TomlPackSource([builtin_packs()]).pack("fr-household")
+FIELDS = {"fta": "LU", "supply_option": "base"}  # no off-peak check, so no warning
 
 
 @st.composite
@@ -44,7 +46,9 @@ def grids(draw: st.DrawFn) -> TimeGrid:
 def test_shares_partition_each_step_and_agree_across_steps(
     hours: TimeWindows, hourly: TimeGrid, step: timedelta
 ) -> None:
-    schedule = network_schedule(hours)
+    schedule = FRANCE.network_schedule(
+        FRANCE.contract(subscribed_kva=6, fields=FIELDS, off_peak=hours)
+    )
     coarse = schedule.weights(hourly).shares
     fine = schedule.weights(hourly.with_step(step)).shares
     np.testing.assert_allclose(coarse.sum(axis=1), 1.0, atol=1e-12)

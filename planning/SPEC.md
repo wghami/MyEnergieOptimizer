@@ -24,7 +24,8 @@ Guiding principles:
 5. **Nothing country- or offer-specific is hard-wired.** Regulated structures (time classes,
    rate components, contract rules) are data or plugins on generic types, so a new offer or
    another country needs as few code changes as possible; norms that do not prevent pricing are
-   warnings, not errors (ADR 0007).
+   warnings, not errors (ADR 0007). Tariff frameworks are user-definable **packs** of data, tagged
+   freely (country is one tag among others), which may extend one another (ADR 0008).
 6. **Checked before it runs** (the SmartMDAO ethos). Before any simulation, a policy is validated
    exhaustively over its finite set of facts.
 
@@ -92,9 +93,11 @@ power in **kW**, money in **EUR**. NewTypes or units keep these from being mixed
   database filled by the M9 agent later, both queried by component, date, kVA, option, FTA and
   status. French household tables (TURPE 7 ≤ 36 kVA, CTA, excise, VAT) come first; companies
   later, as more data and components in the same structure.
-- **Contract**: subscribed power (kVA), tariff option, network option (FTA, e.g. CU4), status
-  (consumer, collective participant, producer with injection), the connection's peak/off-peak
-  hours. Fixed charges depend on it.
+- **Contract**: generic data under a **tariff pack** (ADR 0008): subscribed power, free fields
+  that double as rate selectors (for the French pack: network option such as CU4, status, who
+  holds the access contract, meter, supply option), the connection's off-peak hours (per season if
+  they differ), and optional explicit network and supply schedules (ADR 0007). The pack checks the
+  fields and builds the schedules.
 - **Price book**: components, each with a layer (supply, network, CTA, excise, VAT, levy), a payee,
   a basis (`per_kwh` flat / time-of-use / series, `per_period` fixed, `tiered_per_kwh` by
   accumulated consumption in a declared period, `percent_of` named lines), the flows it applies to,

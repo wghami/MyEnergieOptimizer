@@ -1,0 +1,25 @@
+[sources.study]
+title = "Research hypothesis: reduced VAT on every line"
+url = "https://example.org/vat-study"
+
+[[rates]]
+component = "vat"
+selectors = { base = "subscription" }
+unit = "%"
+
+[[rates.versions]]
+from = 2024-08-01
+source = "study"
+status = "official"
+value = 5.5
+
+[[rates]]
+component = "vat"
+selectors = { base = "consumption" }
+unit = "%"
+
+[[rates.versions]]
+from = 2024-08-01
+source = "study"
+status = "official"
+value = 5.5

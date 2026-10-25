@@ -9,10 +9,10 @@ from decimal import Decimal
 
 import pytest
 
-from myenergy.adapters.rates.toml_files import TomlRateSource, packaged_rate_files
+from myenergy.adapters.packs.toml_files import TomlPackSource, builtin_packs
 from myenergy.domain.rates import RateKey, RateStatus
 
-RATES = TomlRateSource(packaged_rate_files())
+RATES = TomlPackSource([builtin_packs()]).rates("fr-household")
 BT = "BT<=36kVA"
 DATES = [date(2024, 8, 1), date(2025, 2, 1), date(2025, 8, 1), date(2026, 8, 1)]
 CLASSES = ("HPH", "HCH", "HPB", "HCB")

@@ -1,0 +1,71 @@
+# French households on low voltage up to 36 kVA: network tariff (TURPE), CTA, excise, VAT.
+# A pack is data: copy this folder to start your own, or write a pack that "extends" this one
+# and redefines only what changes (ADR 0008). Contract fields double as rate selectors.
+
+[pack]
+name = "fr-household"
+title = "France, households on low voltage up to 36 kVA (TURPE, CTA, excise, VAT)"
+max_kva = 36
+tags = { country = "FR", sector = "household", voltage = "BT<=36kVA", source = "official" }
+
+[fields.segment]
+values = ["BT<=36kVA"]
+default = "BT<=36kVA"
+description = "rate-table segment of the connection"
+
+[fields.fta]
+values = ["CU", "CU4", "MU4", "MUDT", "LU", "CU4-AC", "MU4-AC"]
+description = "network option (formule tarifaire d'acheminement), chosen by the supplier"
+
+[fields.status]
+values = ["consumer", "collective", "producer-injection"]
+default = "consumer"
+description = "consumer (or self-producer without injection), collective self-consumption participant, or self-producer with injection"
+
+[fields.contract]
+values = ["supplier", "user"]
+default = "supplier"
+description = "who holds the network-access contract: the supplier (contrat unique) or the user (CARD)"
+
+[fields.meter]
+values = ["metered", "unmetered"]
+default = "metered"
+description = "whether the connection has a metering device"
+
+[fields.supply_option]
+values = ["base", "hp-hc"]
+description = "the supplier's option when no supply schedule is given"
+
+# The network's four time classes on the connection's off-peak hours (which may differ by season).
+[network.seasons.high]
+dates = "11-01..03-31"
+peak = "HPH"
+off_peak = "HCH"
+
+[network.seasons.low]
+dates = "04-01..10-31"
+peak = "HPB"
+off_peak = "HCB"
+
+[supply]
+field = "supply_option"
+options.base = { single = "base" }
+options.hp-hc = { peak = "HP", off_peak = "HC" }
+
+[[checks]]
+level = "error"
+message = "CU4-AC and MU4-AC are only open to collective self-consumption participants"
+when = { fta = ["CU4-AC", "MU4-AC"] }
+require = { status = ["collective"] }
+
+[[checks]]
+level = "warning"
+message = "TURPE gives a BT <= 36 kVA connection 8 off-peak hours a day; priced as given"
+when = { fta = ["CU4", "MU4", "MUDT", "CU4-AC", "MU4-AC"] }
+off_peak_hours = 8
+
+[[checks]]
+level = "warning"
+message = "the peak/off-peak option normally follows the connection's 8 off-peak hours; priced as given"
+when = { supply_option = ["hp-hc"] }
+off_peak_hours = 8

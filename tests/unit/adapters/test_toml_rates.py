@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from myenergy.adapters.errors import DataFormatError
-from myenergy.adapters.rates.toml_files import TomlRateSource, packaged_rate_files
+from myenergy.adapters.rates.toml_files import TomlRateSource
 from myenergy.domain.errors import UnknownRateError
 from myenergy.domain.rates import RateKey, RateStatus, RateUnit
 
@@ -162,15 +162,3 @@ def test_overlaps_across_files_are_refused(tmp_path: Path) -> None:
 def test_no_file_is_an_error() -> None:
     with pytest.raises(DataFormatError, match="no rate file"):
         TomlRateSource([])
-
-
-def test_the_packaged_tables_load() -> None:
-    names = sorted(path.name for path in packaged_rate_files())
-    assert names == [
-        "taxes.toml",
-        "turpe6-2024-08-01.toml",
-        "turpe6-2025-02-01.toml",
-        "turpe7-2025-08-01.toml",
-        "turpe7-2026-08-01.toml",
-    ]
-    assert len(TomlRateSource(packaged_rate_files()).catalog()) == 56
