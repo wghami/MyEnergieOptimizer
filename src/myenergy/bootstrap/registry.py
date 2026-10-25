@@ -33,6 +33,19 @@ class Registry[T]:
         """``(name, item)`` pairs in registration order."""
         return iter(self._items.items())
 
+    def get(self, name: str) -> T:
+        """The plugin registered under ``name``.
+
+        Raises:
+            RegistryError: nothing is registered under ``name``.
+        """
+        try:
+            return self._items[name]
+        except KeyError:
+            known = ", ".join(self._items) or "none"
+            msg = f"no {self._kind} {name!r} (registered: {known})"
+            raise RegistryError(msg) from None
+
     def names(self) -> tuple[str, ...]:
         """Every registered name."""
         return tuple(self._items)

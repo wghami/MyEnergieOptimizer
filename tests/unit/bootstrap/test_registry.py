@@ -5,7 +5,12 @@ from importlib.metadata import EntryPoint
 import pytest
 
 from myenergy.bootstrap.registry import Registry, RegistryError, load_entry_points
-from myenergy.ports.plugins import PROFILE_SOURCES_GROUP, ProfileSourcePlugin
+from myenergy.ports.plugins import (
+    PROFILE_SOURCES_GROUP,
+    RATE_SOURCES_GROUP,
+    ProfileSourcePlugin,
+    RateSourcePlugin,
+)
 
 
 def test_register_and_iterate() -> None:
@@ -16,11 +21,18 @@ def test_register_and_iterate() -> None:
     assert list(registry) == [("one", 1), ("two", 2)]
     with pytest.raises(RegistryError, match="number 'one' is registered twice"):
         registry.register("one", 3)
+    assert registry.get("two") == 2
+    with pytest.raises(RegistryError, match=r"no number 'three' \(registered: one, two\)"):
+        registry.get("three")
+    with pytest.raises(RegistryError, match=r"\(registered: none\)"):
+        Registry[int]("number").get("one")
 
 
 def test_installed_built_ins_are_entry_points() -> None:
     registry = load_entry_points(PROFILE_SOURCES_GROUP, "profile source", ProfileSourcePlugin)
     assert set(registry.names()) >= {"enedis", "synthetic"}
+    rates = load_entry_points(RATE_SOURCES_GROUP, "rate source", RateSourcePlugin)
+    assert "toml" in rates.names()
 
 
 def test_entry_points_are_sorted_and_checked() -> None:

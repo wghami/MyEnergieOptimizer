@@ -1,0 +1,175 @@
+# TURPE for BT <= 36 kVA in force from 2025-02-01, transcribed from the source below.
+# Each version lasts until the next file's version of the same key starts.
+# Values as published; the loader converts c€/kWh to €/kWh.
+
+[sources.cre-2025-08]
+title = "CRE deliberation n° 2025-08 of 2025-01-15: TURPE 6 HTA-BT from 2025-02-01"
+url = "https://www.cre.fr/fileadmin/Documents/Deliberations/2025/250115__2025-08_Evolution_TURPE_6_HTA-BT.pdf"
+
+[[rates]]
+component = "turpe.management"
+selectors = { segment = "BT<=36kVA", status = "consumer" }
+unit = "EUR/year"
+by = "contract"
+
+[[rates.versions]]
+from = 2025-02-01
+source = "cre-2025-08"
+status = "official"
+value = { user = 18.24, supplier = 16.92 }
+
+[[rates]]
+component = "turpe.management"
+selectors = { segment = "BT<=36kVA", status = "collective" }
+unit = "EUR/year"
+by = "contract"
+
+[[rates.versions]]
+from = 2025-02-01
+source = "cre-2025-08"
+status = "official"
+value = { user = 22.80, supplier = 21.60 }
+
+[[rates]]
+component = "turpe.management"
+selectors = { segment = "BT<=36kVA", status = "producer-injection" }
+unit = "EUR/year"
+by = "contract"
+
+[[rates.versions]]
+from = 2025-02-01
+source = "cre-2025-08"
+status = "official"
+value = { user = 26.64, supplier = 26.64 }
+
+[[rates]]
+component = "turpe.metering"
+selectors = { segment = "BT<=36kVA" }
+unit = "EUR/year"
+by = "meter"
+
+[[rates.versions]]
+from = 2025-02-01
+source = "cre-2025-08"
+status = "official"
+value = { metered = 22.44, unmetered = 1.80 }
+
+[[rates]]
+component = "turpe.withdrawal.power"
+selectors = { segment = "BT<=36kVA" }
+unit = "EUR/kVA/year"
+by = "fta"
+
+[[rates.versions]]
+from = 2025-02-01
+source = "cre-2025-08"
+status = "official"
+value = { CU = 11.28, CU4 = 10.08, MU4 = 11.88, MUDT = 13.80, LU = 91.44, "CU4-AC" = 10.08, "MU4-AC" = 12.00 }
+
+[[rates]]
+component = "turpe.withdrawal.energy"
+selectors = { segment = "BT<=36kVA", fta = "CU" }
+unit = "cEUR/kWh"
+by = "time_class"
+
+[[rates.versions]]
+from = 2025-02-01
+source = "cre-2025-08"
+status = "official"
+value = { HPH = 4.93, HCH = 4.93, HPB = 4.93, HCB = 4.93 }
+
+[[rates]]
+component = "turpe.withdrawal.energy"
+selectors = { segment = "BT<=36kVA", fta = "CU4" }
+unit = "cEUR/kWh"
+by = "time_class"
+
+[[rates.versions]]
+from = 2025-02-01
+source = "cre-2025-08"
+status = "official"
+value = { HPH = 7.50, HCH = 5.13, HPB = 1.60, HCB = 1.00 }
+
+[[rates]]
+component = "turpe.withdrawal.energy"
+selectors = { segment = "BT<=36kVA", fta = "MU4" }
+unit = "cEUR/kWh"
+by = "time_class"
+
+[[rates.versions]]
+from = 2025-02-01
+source = "cre-2025-08"
+status = "official"
+value = { HPH = 6.89, HCH = 4.77, HPB = 1.57, HCB = 0.98 }
+
+[[rates]]
+component = "turpe.withdrawal.energy"
+selectors = { segment = "BT<=36kVA", fta = "MUDT" }
+unit = "cEUR/kWh"
+by = "time_class"
+
+[[rates.versions]]
+from = 2025-02-01
+source = "cre-2025-08"
+status = "official"
+value = { HPH = 5.04, HCH = 3.57, HPB = 5.04, HCB = 3.57 }
+
+[[rates]]
+component = "turpe.withdrawal.energy"
+selectors = { segment = "BT<=36kVA", fta = "LU" }
+unit = "cEUR/kWh"
+by = "time_class"
+
+[[rates.versions]]
+from = 2025-02-01
+source = "cre-2025-08"
+status = "official"
+value = { HPH = 1.24, HCH = 1.24, HPB = 1.24, HCB = 1.24 }
+
+[[rates]]
+component = "turpe.withdrawal.energy"
+selectors = { segment = "BT<=36kVA", fta = "CU4-AC", origin = "grid" }
+unit = "cEUR/kWh"
+by = "time_class"
+
+[[rates.versions]]
+from = 2025-02-01
+source = "cre-2025-08"
+status = "official"
+value = { HPH = 8.14, HCH = 4.98, HPB = 2.57, HCB = 0.97 }
+
+[[rates]]
+component = "turpe.withdrawal.energy"
+selectors = { segment = "BT<=36kVA", fta = "CU4-AC", origin = "collective" }
+unit = "cEUR/kWh"
+by = "time_class"
+
+[[rates.versions]]
+from = 2025-02-01
+source = "cre-2025-08"
+status = "official"
+value = { HPH = 1.86, HCH = 1.44, HPB = 0.87, HCB = 0.42 }
+
+[[rates]]
+component = "turpe.withdrawal.energy"
+selectors = { segment = "BT<=36kVA", fta = "MU4-AC", origin = "grid" }
+unit = "cEUR/kWh"
+by = "time_class"
+
+[[rates.versions]]
+from = 2025-02-01
+source = "cre-2025-08"
+status = "official"
+value = { HPH = 7.41, HCH = 4.75, HPB = 2.50, HCB = 0.97 }
+
+[[rates]]
+component = "turpe.withdrawal.energy"
+selectors = { segment = "BT<=36kVA", fta = "MU4-AC", origin = "collective" }
+unit = "cEUR/kWh"
+by = "time_class"
+
+[[rates.versions]]
+from = 2025-02-01
+source = "cre-2025-08"
+status = "official"
+value = { HPH = 1.86, HCH = 1.44, HPB = 0.87, HCB = 0.42 }

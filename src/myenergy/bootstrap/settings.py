@@ -2,7 +2,9 @@
 
 Each profile source reads its own options, ``MYENERGY_SOURCES__<SOURCE>__<OPTION>``, for example
 ``MYENERGY_SOURCES__ENEDIS__ROOT=/data/enedis`` or ``MYENERGY_SOURCES__SYNTHETIC__SEED=7``.
-``ENEDIS_DB_PATH`` is also accepted for the Enedis folder.
+``ENEDIS_DB_PATH`` is also accepted for the Enedis folder. ``MYENERGY_RATE_SOURCE`` picks the rate
+source (default ``toml``, the packaged tables); its options use the same ``SOURCES`` form, for
+example ``MYENERGY_SOURCES__TOML__ROOT=/data/rates``.
 """
 
 from pathlib import Path
@@ -20,6 +22,8 @@ class Settings(BaseSettings):
 
     sources: dict[str, dict[str, str | int | float | bool]] = Field(default_factory=dict)
     """Environment values arrive parsed as JSON (``7`` is an int); ``options()`` returns text."""
+    rate_source: str = "toml"
+    """The rate-source plugin to use (ADR 0006)."""
     enedis_db_path: Path | None = Field(
         default=None, validation_alias=AliasChoices("MYENERGY_ENEDIS_DB_PATH", "ENEDIS_DB_PATH")
     )

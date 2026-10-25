@@ -1,0 +1,175 @@
+# TURPE for BT <= 36 kVA in force from 2026-08-01, transcribed from the source below.
+# Each version lasts until the next file's version of the same key starts.
+# Values as published; the loader converts c€/kWh to €/kWh.
+
+[sources.enedis-turpe7-2026-08]
+title = "Enedis, TURPE 7 HTA/BT grid in force on 2026-08-01, pp. 17-19 (CRE deliberation n° 2026-105 of 2026-05-21)"
+url = "https://www.enedis.fr/media/4717/download"
+
+[[rates]]
+component = "turpe.management"
+selectors = { segment = "BT<=36kVA", status = "consumer" }
+unit = "EUR/year"
+by = "contract"
+
+[[rates.versions]]
+from = 2026-08-01
+source = "enedis-turpe7-2026-08"
+status = "official"
+value = { user = 18.39, supplier = 17.12 }
+
+[[rates]]
+component = "turpe.management"
+selectors = { segment = "BT<=36kVA", status = "collective" }
+unit = "EUR/year"
+by = "contract"
+
+[[rates.versions]]
+from = 2026-08-01
+source = "enedis-turpe7-2026-08"
+status = "official"
+value = { user = 23.02, supplier = 21.75 }
+
+[[rates]]
+component = "turpe.management"
+selectors = { segment = "BT<=36kVA", status = "producer-injection" }
+unit = "EUR/year"
+by = "contract"
+
+[[rates.versions]]
+from = 2026-08-01
+source = "enedis-turpe7-2026-08"
+status = "official"
+value = { user = 26.95, supplier = 26.95 }
+
+[[rates]]
+component = "turpe.metering"
+selectors = { segment = "BT<=36kVA" }
+unit = "EUR/year"
+by = "meter"
+
+[[rates.versions]]
+from = 2026-08-01
+source = "enedis-turpe7-2026-08"
+status = "official"
+value = { metered = 22.67, unmetered = 1.80 }
+
+[[rates]]
+component = "turpe.withdrawal.power"
+selectors = { segment = "BT<=36kVA" }
+unit = "EUR/kVA/year"
+by = "fta"
+
+[[rates.versions]]
+from = 2026-08-01
+source = "enedis-turpe7-2026-08"
+status = "official"
+value = { CU = 11.41, CU4 = 10.42, MU4 = 12.49, MUDT = 13.90, LU = 95.96, "CU4-AC" = 10.42, "MU4-AC" = 12.49 }
+
+[[rates]]
+component = "turpe.withdrawal.energy"
+selectors = { segment = "BT<=36kVA", fta = "CU" }
+unit = "cEUR/kWh"
+by = "time_class"
+
+[[rates.versions]]
+from = 2026-08-01
+source = "enedis-turpe7-2026-08"
+status = "official"
+value = { HPH = 4.99, HCH = 4.99, HPB = 4.99, HCB = 4.99 }
+
+[[rates]]
+component = "turpe.withdrawal.energy"
+selectors = { segment = "BT<=36kVA", fta = "CU4" }
+unit = "cEUR/kWh"
+by = "time_class"
+
+[[rates.versions]]
+from = 2026-08-01
+source = "enedis-turpe7-2026-08"
+status = "official"
+value = { HPH = 7.72, HCH = 4.09, HPB = 1.71, HCB = 1.20 }
+
+[[rates]]
+component = "turpe.withdrawal.energy"
+selectors = { segment = "BT<=36kVA", fta = "MU4" }
+unit = "cEUR/kWh"
+by = "time_class"
+
+[[rates.versions]]
+from = 2026-08-01
+source = "enedis-turpe7-2026-08"
+status = "official"
+value = { HPH = 7.21, HCH = 3.84, HPB = 1.66, HCB = 1.14 }
+
+[[rates]]
+component = "turpe.withdrawal.energy"
+selectors = { segment = "BT<=36kVA", fta = "MUDT" }
+unit = "cEUR/kWh"
+by = "time_class"
+
+[[rates.versions]]
+from = 2026-08-01
+source = "enedis-turpe7-2026-08"
+status = "official"
+value = { HPH = 5.09, HCH = 3.61, HPB = 5.09, HCB = 3.61 }
+
+[[rates]]
+component = "turpe.withdrawal.energy"
+selectors = { segment = "BT<=36kVA", fta = "LU" }
+unit = "cEUR/kWh"
+by = "time_class"
+
+[[rates.versions]]
+from = 2026-08-01
+source = "enedis-turpe7-2026-08"
+status = "official"
+value = { HPH = 1.29, HCH = 1.29, HPB = 1.29, HCB = 1.29 }
+
+[[rates]]
+component = "turpe.withdrawal.energy"
+selectors = { segment = "BT<=36kVA", fta = "CU4-AC", origin = "grid" }
+unit = "cEUR/kWh"
+by = "time_class"
+
+[[rates.versions]]
+from = 2026-08-01
+source = "enedis-turpe7-2026-08"
+status = "official"
+value = { HPH = 7.75, HCH = 4.15, HPB = 1.78, HCB = 1.25 }
+
+[[rates]]
+component = "turpe.withdrawal.energy"
+selectors = { segment = "BT<=36kVA", fta = "CU4-AC", origin = "collective" }
+unit = "cEUR/kWh"
+by = "time_class"
+
+[[rates.versions]]
+from = 2026-08-01
+source = "enedis-turpe7-2026-08"
+status = "official"
+value = { HPH = 2.95, HCH = 1.32, HPB = 0.78, HCB = 0.50 }
+
+[[rates]]
+component = "turpe.withdrawal.energy"
+selectors = { segment = "BT<=36kVA", fta = "MU4-AC", origin = "grid" }
+unit = "cEUR/kWh"
+by = "time_class"
+
+[[rates.versions]]
+from = 2026-08-01
+source = "enedis-turpe7-2026-08"
+status = "official"
+value = { HPH = 7.25, HCH = 3.87, HPB = 1.66, HCB = 1.18 }
+
+[[rates]]
+component = "turpe.withdrawal.energy"
+selectors = { segment = "BT<=36kVA", fta = "MU4-AC", origin = "collective" }
+unit = "cEUR/kWh"
+by = "time_class"
+
+[[rates.versions]]
+from = 2026-08-01
+source = "enedis-turpe7-2026-08"
+status = "official"
+value = { HPH = 2.68, HCH = 1.27, HPB = 0.77, HCB = 0.50 }

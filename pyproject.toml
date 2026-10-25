@@ -27,6 +27,9 @@ Documentation = "https://wghami.github.io/MyEnergyOptimizer/"
 enedis = "myenergy.adapters.profiles.plugins:ENEDIS"
 synthetic = "myenergy.adapters.profiles.plugins:SYNTHETIC"
 
+[project.entry-points."myenergy.rate_sources"]
+toml = "myenergy.adapters.rates.plugins:TOML"
+
 [dependency-groups]
 dev = [
     "project-standards",
