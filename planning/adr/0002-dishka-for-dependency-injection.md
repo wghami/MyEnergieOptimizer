@@ -12,7 +12,7 @@ but scopes and their finalisation become boilerplate quickly.
 
 ## Decision
 
-Use **dishka** as the container, wired only in `myenergie/bootstrap.py` (MEO-DI-1…4), with the
+Use **dishka** as the container, wired only in `myenergy/bootstrap.py` (MEO-DI-1…4), with the
 scopes `APP`, `REQUEST` and `SIMULATION`. Its FastAPI integration injects services into routes.
 
 ## Consequences

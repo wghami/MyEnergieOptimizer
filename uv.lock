@@ -874,7 +874,7 @@ wheels = [
 ]
 
 [[package]]
-name = "myenergieoptimizer"
+name = "myenergyoptimizer"
 source = { editable = "." }
 
 [package.dev-dependencies]
@@ -920,7 +920,7 @@ dev = [
     { name = "mutmut", specifier = ">=3.8.0" },
     { name = "pip-audit", specifier = ">=2.10.1" },
     { name = "pre-commit", specifier = ">=4.7.0" },
-    { name = "project-standards", git = "https://github.com/wghami/python-project-standards?rev=bd5dd054076ba2a96c79501e4760248ba2466910" },
+    { name = "project-standards", git = "https://github.com/wghami/python-project-standards?rev=ba25a3afdc448aacde1c2e8faaa452e809f03b47" },
     { name = "pyright", extras = ["nodejs"], specifier = ">=1.1.414" },
     { name = "pytest", specifier = ">=9.1.1" },
     { name = "pytest-benchmark", specifier = ">=5.3.0" },
@@ -1089,8 +1089,8 @@ wheels = [
 
 [[package]]
 name = "project-standards"
-version = "0.3.3"
-source = { git = "https://github.com/wghami/python-project-standards?rev=bd5dd054076ba2a96c79501e4760248ba2466910#bd5dd054076ba2a96c79501e4760248ba2466910" }
+version = "0.3.4"
+source = { git = "https://github.com/wghami/python-project-standards?rev=ba25a3afdc448aacde1c2e8faaa452e809f03b47#ba25a3afdc448aacde1c2e8faaa452e809f03b47" }
 dependencies = [
     { name = "pyyaml" },
 ]

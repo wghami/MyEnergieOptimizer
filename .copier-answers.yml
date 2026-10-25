@@ -1,5 +1,5 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-_commit: v0.3.3
+_commit: v0.3.4
 _src_path: gh:wghami/python-project-standards
 author_name: WGhami
 commit_scopes:
@@ -24,7 +24,7 @@ description: Simulate a home or energy-community electricity system whose dispat
     is decided by user-written logic rules, built on SmartMDAO.
 github_owner: wghami
 mutation_min_score: 90
-package_name: myenergie
-project_name: MyEnergieOptimizer
-project_slug: myenergieoptimizer
+package_name: myenergy
+project_name: MyEnergyOptimizer
+project_slug: myenergyoptimizer
 python_version: '3.12'

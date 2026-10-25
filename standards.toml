@@ -12,7 +12,7 @@ extra_prefixes = ["dependabot/"]
 
 [readme]
 # Generated README blocks (DOC-10): `standards readme --write` refreshes them.
-repository = "wghami/MyEnergieOptimizer"
+repository = "wghami/MyEnergyOptimizer"
 
 [doc_impact]
 # A change to a watched path must come with a change to the docs its rule names (DOC-6),
